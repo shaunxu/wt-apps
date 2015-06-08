@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Worktile</title>
+
+    <link href="lib/angular-material/angular-material.min.css" rel="stylesheet" media="screen">
+    <link href="app.css" rel="stylesheet" media="screen">
+
+    <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-animate.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-aria.min.js"></script>
+    <script type="text/javascript" src="lib/angular-material/angular-material.min.js"></script>
+    <script src="app.js"></script>
+  </head>
+  <body ng-app="Worktile" ng-controller="MasterController" layout="column">
+    <md-toolbar layout="row">
+      <div class="md-toolbar-tools">
+        <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button">
+          <md-icon aria-label="Menu" md-svg-icon="https://s3-us-west-2.amazonaws.com/s.cdpn.io/68133/menu.svg"></md-icon>
+        </md-button>
+        <h1>Hello World</h1>
+      </div>
+    </md-toolbar>
+
+    <div layout="row" layout-align="center center">
+      <h1 class="md-display-4">Worktile</h1>
+    </div>
+    <div layout="row" layout-align="center center">
+      <md-button class="md-raised md-primary" ng-click="login()">Login</md-button>
+    </div>
+  </body>
+</html>

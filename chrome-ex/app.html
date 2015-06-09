@@ -8,26 +8,63 @@
 
     <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-messages.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular-animate.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular-aria.min.js"></script>
     <script type="text/javascript" src="lib/angular-material/angular-material.min.js"></script>
     <script src="app.js"></script>
   </head>
-  <body ng-app="Worktile" ng-controller="MasterController" layout="column">
-    <md-toolbar layout="row">
+  <body ng-app="Worktile" ng-controller="MasterController" style="padding-bottom: 15px;">
+    <md-toolbar>
       <div class="md-toolbar-tools">
-        <md-button ng-click="toggleSidenav('left')" hide-gt-sm class="md-icon-button">
-          <md-icon aria-label="Menu" md-svg-icon="https://s3-us-west-2.amazonaws.com/s.cdpn.io/68133/menu.svg"></md-icon>
+        <h2>
+          <span>Worktile</span>
+        </h2>
+        <span flex></span>
+        <md-button class="md-icon-button" aria-label="User" ng-show="loggedIn">
+          <md-tooltip>{{user.display_name}}</md-tooltip>
+          <img ng-src="{{user.avatar}}" alt="{{user.display_name}" class="wt-avatar">
         </md-button>
-        <h1>Hello World</h1>
       </div>
     </md-toolbar>
+    <md-content ng-show="!loggedIn" layout="column" layout-align="center center" layout-margin layout-fill layout-padding>
+      <div>
+        <md-button class="md-raised md-primary" ng-click="login()">Login</md-button>
+      </div>
+    </md-content>
+    <md-content ng-show="loggedIn" layout-padding>
+<!--
+      <pre>{{user | json}}</pre>
+      <pre>{{projects | json}}</pre>
+-->
+      <form name="topicForm">
+        <md-input-container>
+          <label>Name</label>
+          <input md-maxlength="30" required name="name" ng-model="topic.name">
+          <div ng-messages="topicForm.name.$dirty && topicForm.name.$error">
+            <div ng-message="required">This is required.</div>
+            <div ng-message="md-maxlength">The name has to be less than 30 characters long.</div>
+          </div>
+        </md-input-container>
+        <md-input-container>
+          <label>Context</label>
+          <input required name="context" ng-model="tpoic.content">
+          <div ng-messages="topicForm.context.$dirty && topicForm.context.$error">
+            <div ng-message="required">This is required.</div>
+          </div>
+        </md-input-container>
+        <md-select required placeholder="Project" name="project" ng-model="tpoic.project">
+          <md-option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</md-option>
+        </md-select>
+        <div ng-messages="topicForm.project.$dirty && topicForm.project.$error">
+          <div ng-message="required">This is required.</div>
+        </div>
+        <md-input-container>
+          <label>Followers</label>
 
-    <div layout="row" layout-align="center center">
-      <h1 class="md-display-4">Worktile</h1>
-    </div>
-    <div layout="row" layout-align="center center">
-      <md-button class="md-raised md-primary" ng-click="login()">Login</md-button>
-    </div>
+        </md-input-container>
+      </form>
+    </md-content>
+
   </body>
 </html>

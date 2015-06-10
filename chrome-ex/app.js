@@ -4,7 +4,7 @@
     var client_id = '54599295762c424b8aced6e7ee891a47';
     var return_url = chrome.identity.getRedirectURL();
 
-    var app = window.angular.module('Worktile', ['ngMessages', 'ngMaterial']);
+    var app = window.angular.module('Worktile', ['ngMessages']);
 
     app.value('$', window.$);
 
@@ -60,30 +60,35 @@
         };
 
         var _loadMembersByProjectID = function (project, callback) {
-            $http({
-                method: 'GET',
-                url: 'https://api.worktile.com/v1/projects/' + project.pid + '/members',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'access_token': $box.token.access_token
-                }
-            }).
-            success(function (data, status) {
-                project.members = {};
-                window.angular.forEach(data, function (member) {
-                    // only dealing with members with normal status
-                    if (member.status === 1) {
-                        project.members[member.uid] = member;
+            if (!project.members || Object.getOwnPropertyNames(project.members).length <= 0) {
+                $http({
+                    method: 'GET',
+                    url: 'https://api.worktile.com/v1/projects/' + project.pid + '/members',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'access_token': $box.token.access_token
                     }
+                }).
+                success(function (data, status) {
+                    project.members = {};
+                    window.angular.forEach(data, function (member) {
+                        // only dealing with members with normal status
+                        if (member.status === 1) {
+                            project.members[member.uid] = member;
+                        }
+                    });
+                    return callback(null, project.members);
+                }).
+                error(function (data, status) {
+                    return callback({
+                        data: data,
+                        status: status
+                    }, null);
                 });
+            }
+            else {
                 return callback(null, project.members);
-            }).
-            error(function (data, status) {
-                return callback({
-                    data: data,
-                    status: status
-                }, null);
-            });
+            }
         };
 
         var _loadProjects = function (callback) {
@@ -112,6 +117,15 @@
                 }, null);
             });
         };
+
+        $scope.topic = {};
+        $scope.$watch('tpoic.project', function (pid) {
+            if (pid && $box.projects[pid]) {
+                _loadMembersByProjectID($box.projects[pid], function (error, members) {
+                    $scope.members = members;
+                });
+            }
+        });
 
         $scope.login = function () {
             chrome.identity.launchWebAuthFlow({
@@ -161,6 +175,22 @@
                 }
             });
         };
+
+        $scope.copy = function () {
+            chrome.tabs.query({
+                active: true,
+                currentWindow: true
+            }, function (tabs) {
+                var tab = tabs[0];
+                $scope.$apply(function () {
+                    $scope.topic = {
+                        name: tab.title,
+                        content: tab.url
+                    };
+                });
+            });
+        };
+
     });
 
 })();

@@ -3,68 +3,68 @@
   <head>
     <title>Worktile</title>
 
-    <link href="lib/angular-material/angular-material.min.css" rel="stylesheet" media="screen">
+    <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
     <link href="app.css" rel="stylesheet" media="screen">
 
     <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular-messages.min.js"></script>
-    <script type="text/javascript" src="lib/angular/angular-animate.min.js"></script>
-    <script type="text/javascript" src="lib/angular/angular-aria.min.js"></script>
-    <script type="text/javascript" src="lib/angular-material/angular-material.min.js"></script>
     <script src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController" style="padding-bottom: 15px;">
-    <md-toolbar>
-      <div class="md-toolbar-tools">
-        <h2>
-          <span>Worktile</span>
-        </h2>
-        <span flex></span>
-        <md-button class="md-icon-button" aria-label="User" ng-show="loggedIn">
-          <md-tooltip>{{user.display_name}}</md-tooltip>
-          <img ng-src="{{user.avatar}}" alt="{{user.display_name}" class="wt-avatar">
-        </md-button>
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <img src="img/icons/ic_face_white_24px.svg" class="pull-right">
+        <h4 class="modal-title">Worktile</h4>
       </div>
-    </md-toolbar>
-    <md-content ng-show="!loggedIn" layout="column" layout-align="center center" layout-margin layout-fill layout-padding>
-      <div>
-        <md-button class="md-raised md-primary" ng-click="login()">Login</md-button>
+      <div class="panel-body">
+        <form>
+          <div class="form-group">
+            <label for="name">
+              <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Topic
+            </label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Topic name" ng-model="topic.name">
+          </div>
+          <div class="form-group">
+            <label for="content">
+              <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Content
+            </label>
+            <textarea class="form-control" rows="3" name="content" placeholder="Topic content" ng-model="topic.content"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="content">
+              <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
+            </label>
+            <select class="form-control">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="content">
+              <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Followers
+            </label>
+            <select multiple class="form-control">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-info" ng-click="login()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Login</button>
+          </div>
+          <div class="btn-group pull-right" role="group">
+            <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
+            <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Submit</button>
+          </div>
+        </form>
       </div>
-    </md-content>
-    <md-content ng-show="loggedIn" layout-padding>
-<!--
-      <pre>{{user | json}}</pre>
-      <pre>{{projects | json}}</pre>
--->
-      <form name="topicForm">
-        <md-input-container>
-          <label>Name</label>
-          <input md-maxlength="30" required name="name" ng-model="topic.name">
-          <div ng-messages="topicForm.name.$dirty && topicForm.name.$error">
-            <div ng-message="required">This is required.</div>
-            <div ng-message="md-maxlength">The name has to be less than 30 characters long.</div>
-          </div>
-        </md-input-container>
-        <md-input-container>
-          <label>Context</label>
-          <input required name="context" ng-model="tpoic.content">
-          <div ng-messages="topicForm.context.$dirty && topicForm.context.$error">
-            <div ng-message="required">This is required.</div>
-          </div>
-        </md-input-container>
-        <md-select required placeholder="Project" name="project" ng-model="tpoic.project">
-          <md-option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</md-option>
-        </md-select>
-        <div ng-messages="topicForm.project.$dirty && topicForm.project.$error">
-          <div ng-message="required">This is required.</div>
-        </div>
-        <md-input-container>
-          <label>Followers</label>
-
-        </md-input-container>
-      </form>
-    </md-content>
-
+    </div>
   </body>
 </html>

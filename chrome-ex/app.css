@@ -1,5 +1,5 @@
 body, section {
-    width: 600px;
+    width: 400px;
     height: 400px;
     /*overflow-x: hidden;*/
 }
@@ -21,4 +21,12 @@ section { padding: 5px;}
     width: 40px;
     height: 40px;
     border-radius: 50%;
+}
+
+.clear {
+    clear:both;
+}
+
+.panel {
+    margin-bottom: 0;
 }

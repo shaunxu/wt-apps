@@ -13,58 +13,55 @@
     <script src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController" style="padding-bottom: 15px;">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <img src="img/icons/ic_face_white_24px.svg" class="pull-right">
+    <div class="panel panel-info wt-container">
+      <div class="panel-heading wt-header">
+        <img ng-show="me.uid" ng-src="{{me.avatar}}" class="wt-avatar pull-right">
         <h4 class="modal-title">Worktile</h4>
       </div>
       <div class="panel-body">
-        <form>
+        <form novalidate name="postForm">
           <div class="form-group">
             <label for="name">
-              <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Topic
+              <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Post
             </label>
-            <input type="text" class="form-control" id="name" name="name" placeholder="Topic name" ng-model="topic.name">
+            <input type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="post.title">
           </div>
           <div class="form-group">
             <label for="content">
               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Content
             </label>
-            <textarea class="form-control" rows="3" name="content" placeholder="Topic content" ng-model="topic.content"></textarea>
+            <textarea class="form-control" rows="3" name="content" placeholder="Topic content" ng-model="post.content"></textarea>
           </div>
-          <div class="form-group">
-            <label for="content">
-              <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
-            </label>
-            <select class="form-control">
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="content">
-              <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Followers
-            </label>
-            <select multiple class="form-control">
-              <option>1</option>
-              <option>2</option>
-              <option>3</option>
-              <option>4</option>
-              <option>5</option>
-            </select>
-          </div>
+          <fieldset ng-disabled="!me.uid">
+            <div class="form-group">
+              <label for="pid">
+                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
+              </label>
+              <select class="form-control" ng-model="post.pid" name="pid">
+                <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="followers">
+                <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Followers
+              </label>
+              <select multiple class="form-control" ng-model="post.followers" name="followers">
+                <option ng-repeat="member in members" value="{{member.uid}}">{{member.display_name}}</option>
+              </select>
+            </div>
+          </fieldset>
           <div class="btn-group" role="group">
-            <button type="button" class="btn btn-info" ng-click="login()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Login</button>
+            <button ng-hide="me.uid" type="button" class="btn btn-info" ng-click="login()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Login</button>
           </div>
           <div class="btn-group pull-right" role="group">
             <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
-            <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Submit</button>
+            <button ng-disabled="!me.uid" type="submit" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Submit</button>
           </div>
         </form>
       </div>
     </div>
+<!--
+    <pre>{{post | json}}</pre>
+-->
   </body>
 </html>

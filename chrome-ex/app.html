@@ -10,13 +10,14 @@
     <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular-messages.min.js"></script>
+    <script src="worktile.js"></script>
     <script src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController" style="padding-bottom: 15px;">
     <div class="panel panel-info wt-container">
       <div class="panel-heading wt-header">
         <img ng-show="me.uid" ng-src="{{me.avatar}}" class="wt-avatar pull-right">
-        <h4 class="modal-title">Worktile</h4>
+        <h4 class="modal-title">{{name}}</h4>
       </div>
       <div class="panel-body">
         <form novalidate name="postForm">
@@ -24,7 +25,7 @@
             <label for="name">
               <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Post
             </label>
-            <input type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="post.title">
+            <input required type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="post.title">
           </div>
           <div class="form-group">
             <label for="content">
@@ -37,7 +38,7 @@
               <label for="pid">
                 <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
               </label>
-              <select class="form-control" ng-model="post.pid" name="pid">
+              <select required class="form-control" ng-model="post.pid" name="pid">
                 <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
               </select>
             </div>
@@ -46,22 +47,25 @@
                 <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Followers
               </label>
               <select multiple class="form-control" ng-model="post.followers" name="followers">
-                <option ng-repeat="member in members" value="{{member.uid}}">{{member.display_name}}</option>
+                <option ng-repeat="member in projects[post.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
               </select>
             </div>
           </fieldset>
           <div class="btn-group" role="group">
             <button ng-hide="me.uid" type="button" class="btn btn-info" ng-click="login()"><span class="glyphicon glyphicon-user" aria-hidden="true"></span> Login</button>
+            <button ng-show="me.uid" type="button" class="btn btn-info" ng-click="refresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh</button>
           </div>
           <div class="btn-group pull-right" role="group">
             <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
-            <button ng-disabled="!me.uid" type="submit" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Submit</button>
+            <button ng-disabled="!me.uid || !post.pid" type="submit" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span> Submit</button>
           </div>
         </form>
       </div>
     </div>
 <!--
     <pre>{{post | json}}</pre>
+
+    <pre>{{projects | json}}</pre>
 -->
   </body>
 </html>

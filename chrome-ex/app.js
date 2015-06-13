@@ -33,20 +33,22 @@
         };
 
         $scope.$watch('post.pid', function (pid) {
-            var project = $scope.projects[pid];
-            if (project) {
-                if (project.members) {
-                    $worktile.setLastProject(project);
-                }
-                else {
-                    $worktile.getProjectMembersPromise(project)
-                        .then(function () {
-                            $worktile.setLastProject(project);
-                        })
-                        .catch(function (error) {
-                            _showError(error);
-                        });
-                }
+            if ($scope.projects) {
+                var project = $scope.projects[pid];
+                if (project) {
+                    if (project.members) {
+                        $worktile.setLastProject(project);
+                    }
+                    else {
+                        $worktile.getProjectMembersPromise(project)
+                            .then(function () {
+                                $worktile.setLastProject(project);
+                            })
+                            .catch(function (error) {
+                                _showError(error);
+                            });
+                    }
+                }                
             }
         });
 

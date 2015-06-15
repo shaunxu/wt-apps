@@ -66,9 +66,6 @@
                 .then(function (projects) {
                     $scope.projects = projects;
                     $scope.post.pid = $worktile.getLastProject().pid;
-                    // if (!$scope.projects[$scope.post.pid].member) {
-                    //     $worktile.getProjectMembersPromise($scope.projects[$scope.post.pid]);
-                    // }
                 })
                 .catch(function (error) {
                     _showError(error);

@@ -6,7 +6,12 @@
 
     var app = angular.module('Worktile', ['ngMessages', 'ngWorktile']);
 
+    app.config(function ($compileProvider) {
+        $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
+    });
+
     app.controller('MasterController', function ($scope, $http, $q, $worktile) {
+        $scope.__loading = false;
         $scope.name = $worktile.name;
         $scope.post = {
             title: null,
@@ -40,12 +45,16 @@
                         $worktile.setLastProject(project);
                     }
                     else {
+                        $scope.__loading = true;
                         $worktile.getProjectMembersPromise(project)
                             .then(function () {
                                 $worktile.setLastProject(project);
                             })
                             .catch(function (error) {
                                 _showError(error);
+                            })
+                            .finally(function () {
+                                $scope.__loading = false;
                             });
                     }
                 }                
@@ -63,6 +72,8 @@
                 })
                 .catch(function (error) {
                     _showError(error);
+                })
+                .finally(function () {
                 });
         }
 
@@ -80,6 +91,7 @@
         };
 
         $scope.login = function () {
+            $scope.__loading = true;
             $worktile.logInPromise()
                 .then(function () {
                     return $worktile.getCurrentUserPromise();
@@ -94,6 +106,9 @@
                 })
                 .catch(function (error) {
                     _showError(error);
+                })
+                .finally(function () {
+                    $scope.__loading = false;
                 });
         };
 
@@ -111,6 +126,7 @@
                 return;
             }
 
+            $scope.__loading = true;
             $worktile.createPostPromise($scope.post)
                 .then(function (post) {
                     if ($scope.post.followers.length > 0) {
@@ -130,10 +146,14 @@
                 })
                 .catch(function (error) {
                     _showError(error);
+                })
+                .finally(function () {
+                    $scope.__loading = false;
                 });
         };
 
         $scope.refresh = function () {
+            $scope.__loading = true;
             $worktile.getCurrentUserPromise()
                 .then(function (user) {
                     $scope.me = user;
@@ -146,6 +166,9 @@
                 })
                 .catch(function (error) {
                     _showError(error);
+                })
+                .finally(function () {
+                    $scope.__loading = false;
                 });
         };
     });

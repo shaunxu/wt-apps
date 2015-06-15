@@ -160,8 +160,12 @@
                             'access_token': self.getToken().access_token
                         }
                     }).then(function (response, status) {
-                        self.setCurrentUser(response.data);
-                        return resolve(response.data);
+                        var user = response.data;
+                        if (!user.avatar || user.avatar.length <= 0) {
+                            user.avatar = 'img/icons/ic_face_black_48dp_1x.png';
+                        }
+                        self.setCurrentUser(user);
+                        return resolve(user);
                     }, function (response) {
                         return reject(response);
                     });
@@ -170,30 +174,36 @@
             logInPromise: function () {
                 var self = this;
                 return $q(function (resolve, reject) {
-                    chrome.identity.launchWebAuthFlow({
-                        url: 'https://open.worktile.com/oauth2/authorize?client_id=' + $clientId + '&redirect_uri=' + $redirectURL + '&display=mobile',
-                        interactive: true
-                    }, function (responseUrl) {
-                        var code = _getParameterByName(responseUrl, 'code');
-                        if (code) {
-                            $http({
-                                method: 'POST',
-                                url: 'https://api.worktile.com/oauth2/access_token',
-                                data: {
-                                    client_id: $clientId,
-                                    code: code
-                                }
-                            }).then(function (response) {
-                                self.setToken(response.data);
-                                return resolve(response.data);
-                            }, function (response) {
-                                return reject(response);
-                            });
-                        }
-                        else {
-                            return reject('Invalid code from Worktile Open API. Response URL = [' + responseUrl + '].');
-                        }
-                    });
+                    try
+                    {
+                        chrome.identity.launchWebAuthFlow({
+                            url: 'https://open.worktile.com/oauth2/authorize?client_id=' + $clientId + '&redirect_uri=' + $redirectURL + '&display=mobile',
+                            interactive: true
+                        }, function (responseUrl) {
+                            var code = _getParameterByName(responseUrl, 'code');
+                            if (code) {
+                                $http({
+                                    method: 'POST',
+                                    url: 'https://api.worktile.com/oauth2/access_token',
+                                    data: {
+                                        client_id: $clientId,
+                                        code: code
+                                    }
+                                }).then(function (response) {
+                                    self.setToken(response.data);
+                                    return resolve(response.data);
+                                }, function (response) {
+                                    return reject(response);
+                                });
+                            }
+                            else {
+                                return reject('Invalid code from Worktile Open API. Response URL = [' + responseUrl + '].');
+                            }
+                        });
+                    }
+                    catch (ex) {
+                        return reject(ex);
+                    }
                 });
             },
             addPostFollowersPromise: function (pid, postId, uids) {

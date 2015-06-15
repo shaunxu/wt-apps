@@ -14,6 +14,15 @@
     <script src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController" style="padding-bottom: 15px;">
+    <div class="cover" ng-show="__loading">
+      <div class="outer">
+        <div class="middle text-info">
+          <div class="inner">
+            <span class="glyphicon glyphicon-refresh glyphicon-3x fa-spin"></span>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="panel panel-info wt-container">
       <div class="panel-heading wt-header">
         <img ng-show="me.uid" ng-src="{{me.avatar}}" class="wt-avatar pull-right">
@@ -63,6 +72,8 @@
       </div>
     </div>
 <!--
+    <pre>{{me | json}}</pre>
+
     <pre>{{post | json}}</pre>
 
     <pre>{{projects | json}}</pre>

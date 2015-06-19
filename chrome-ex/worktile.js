@@ -12,6 +12,24 @@
             return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
         };
 
+        var _getRemoveCookiePromise = function (url, name) {
+            return $q(function (resolve, reject) {
+                try
+                {
+                    chrome.cookies.remove({
+                        url: url,
+                        name: name
+                    }, function (details) {
+                        return resolve(details);
+                    });
+                }
+                catch (ex)
+                {
+                    return reject(ex);
+                }
+            });
+        };
+
         var _storage = {
             get: function (key) {
                 var raw = localStorage[key];
@@ -33,6 +51,9 @@
                     delete localStorage[key];
                 }
             },
+            clear: function () {
+                localStorage.clear();
+            }
         };
 
         var _interval = null;
@@ -251,7 +272,51 @@
                         return reject('Invalid post value. ' + angular.toJson(post));
                     }
                 });
-            }
+            },
+            logoutPromise: function () {
+                var self = this;
+                return $q(function (resolve, reject) {
+                    _storage.clear();
+                    try
+                    {
+                        chrome.identity.launchWebAuthFlow({
+                            url: 'https://worktile.com/api/user/signout',
+                            interactive: true
+                        }, function (responseUrl) {
+                            if (chrome.runtime.lastError) {
+                                alert(angular.toJson(chrome.runtime.lastError, true));
+                            }
+                            return resolve();
+                        });
+
+                        // chrome.cookies.getAll({}, function (cookies) {
+                        //     alert(angular.toJson(cookies, true));
+                        //     if (cookies && cookies.length > 0) {
+                        //         var promises = [];
+                        //         angular.forEach(cookies, function (cookie) {
+                        //             cookie.url = (cookie.secure ? "https://" : "http://") + (cookie.domain.charAt(0) === "." ? 'www' : '') + cookie.domain;
+                        //             promises.push(_getRemoveCookiePromise(cookie.url, cookie.name));
+                        //         });
+                        //         $q.all(promises)
+                        //             .then(function () {
+                        //                 alert('done');
+                        //                 return resolve();
+                        //             })
+                        //             .catch(function () {
+                        //                 alert('failed');
+                        //                 return reject();
+                        //             });
+                        //     }
+                        //     else {
+                        //         return resolve();
+                        //     }
+                        // });
+                    }
+                    catch (ex) {
+                        return reject(ex);
+                    }
+                });
+            },
         };
     });
 })();

@@ -45,17 +45,19 @@
                         $worktile.setLastProject(project);
                     }
                     else {
+                        if ($worktile.isLoggedIn()) {
                         $scope.__loading = true;
-                        $worktile.getProjectMembersPromise(project)
-                            .then(function () {
-                                $worktile.setLastProject(project);
-                            })
-                            .catch(function (error) {
-                                _showError(error);
-                            })
-                            .finally(function () {
-                                $scope.__loading = false;
-                            });
+                            $worktile.getProjectMembersPromise(project)
+                                .then(function () {
+                                    $worktile.setLastProject(project);
+                                })
+                                .catch(function (error) {
+                                    _showError(error);
+                                })
+                                .finally(function () {
+                                    $scope.__loading = false;
+                                });
+                        }
                     }
                 }                
             }
@@ -75,6 +77,25 @@
         }
 
         $scope.copy = function () {
+            chrome.runtime.sendMessage({ action: 'clearCookies' }, function (response) {
+                alert(JSON.stringify({
+                    where: 'app.js',
+                    response: response
+                }, null, 2));
+            });
+            // chrome.cookies.get({
+            //     url: 'https://open.worktile.com',
+            //     name: 'sid'
+            // }, function (details) {
+            //     alert(angular.toJson(details, true));
+            // });
+
+            // chrome.cookies.getAll({
+            //     domain: 'worktile.com'
+            // }, function (cookies) {
+            //     alert(angular.toJson(cookies, true));
+            // });
+
             chrome.tabs.query({
                 active: true,
                 currentWindow: true
@@ -110,7 +131,24 @@
         };
 
         $scope.logout = function () {
-
+            $scope.__loading = true;
+            $worktile.logoutPromise()
+                .then(function () {
+                    $scope.post = {
+                        title: null,
+                        content: null,
+                        pid: null,
+                        followers: []
+                    };
+                    $scope.me = {};
+                    $scope.projects = {};
+                })
+                .catch(function (error) {
+                    _showError(error);
+                })
+                .finally(function () {
+                    $scope.__loading = false;
+                });
         };
 
         $scope.submit = function () {

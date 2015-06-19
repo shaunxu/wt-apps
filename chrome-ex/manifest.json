@@ -4,7 +4,10 @@
   "name": "Worktile Chrome Extension",
   "description": "Chrome extension for worktile to add task, topic and document easily.",
   "version": "1.0",
-
+  "background": {
+      "persistent": true,
+      "scripts": [ "background.js" ]
+   },
   "browser_action": {
     "default_icon": "favicon.ico",
     "default_popup": "app.html",
@@ -13,6 +16,7 @@
   "permissions": [
     "tabs",
     "identity",
+    "cookies",
     "*://*.worktile.com/*"
   ]
 }

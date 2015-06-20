@@ -29,48 +29,82 @@
         <h4 class="modal-title">{{name}}</h4>
       </div>
       <div class="panel-body">
-        <form novalidate name="postForm">
+        <div class="type-selection">
+          <div class="btn-group " role="group">
+            <button type="button" class="btn btn-default" ng-click="type = types.task">
+              <span ng-class="type === types.task ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Task
+            </button>
+            <button type="button" class="btn btn-default" ng-click="type = types.appointment" ng-if="false">
+              <span ng-class="type === types.appointment ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Appointment
+            </button>
+            <button type="button" class="btn btn-default" ng-click="type = types.post">
+              <span ng-class="type === types.post ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Post
+            </button>
+            <button type="button" class="btn btn-default" ng-click="type = types.document" ng-if="false">
+              <span ng-class="type === types.document ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Document
+            </button>
+          </div>
+        </div>
+
+        <form novalidate name="targetForm">
           <div class="form-group">
             <label for="name">
-              <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Post
+              <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Title
             </label>
-            <input required type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="post.title">
+            <input required type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="target.title">
           </div>
           <div class="form-group">
             <label for="content">
               <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Content
             </label>
-            <textarea class="form-control" rows="3" name="content" placeholder="Topic content" ng-model="post.content"></textarea>
+            <textarea class="form-control" rows="3" name="content" placeholder="Topic content" ng-model="target.content"></textarea>
           </div>
-          <fieldset ng-disabled="!me.uid">
+          <fieldset class="project-selector" ng-disabled="!me.uid">
             <div class="form-group">
               <label for="pid">
                 <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
               </label>
-              <select required class="form-control" ng-model="post.pid" name="pid">
+              <select required class="form-control" ng-model="target.pid" name="pid">
                 <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
+              </select>
+            </div>
+            <div class="form-group" ng-show="type === types.task">
+              <label for="eid">
+                <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> List
+              </label>
+              <select required class="form-control" ng-model="target.eid" name="eid">
+                <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}}</option>
+              </select>
+            </div>
+            <div class="form-group" ng-show="type === types.task">
+              <label for="assignees">
+                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Assignees
+              </label>
+              <select multiple class="form-control" ng-model="target.assignees" name="assignees">
+                <option ng-repeat="member in projects[target.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
               </select>
             </div>
             <div class="form-group">
               <label for="followers">
                 <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Followers
               </label>
-              <select multiple class="form-control" ng-model="post.followers" name="followers">
-                <option ng-repeat="member in projects[post.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
+              <select multiple class="form-control" ng-model="target.followers" name="followers">
+                <option ng-repeat="member in projects[target.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
               </select>
             </div>
           </fieldset>
-          <div class="btn-group" role="group">
-            <button type="button" class="btn btn-info" ng-click="me.uid ? logout() : login()">
-              <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span>
-            </button>
-            <button ng-show="me.uid" type="button" class="btn btn-info" ng-click="refresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-          </div>
-          <div class="btn-group pull-right" role="group">
-            <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
-            <button ng-disabled="!me.uid || !post.pid" type="submit" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit</button>
-          </div>
         </form>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-info" ng-click="me.uid ? logout() : login()">
+            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span>
+          </button>
+          <button ng-show="me.uid" type="button" class="btn btn-info" ng-click="refresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
+        </div>
+        <div class="btn-group pull-right" role="group">
+          <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
+          <button ng-disabled="!me.uid || !post.pid" type="button" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit</button>
+        </div>
       </div>
     </div>
 <!--

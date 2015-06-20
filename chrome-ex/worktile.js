@@ -78,6 +78,18 @@
             setLastProject: function (project) {
                 _storage.set('lastPorject', project);
             },
+            getLastEntry: function () {
+                return _storage.get('lastEntry');
+            },
+            setLastEntry: function (entry) {
+                _storage.set('lastEntry', entry);
+            },
+            getPreferences: function () {
+                _storage.get('preferences');
+            },
+            setPreferences: function (preferences) {
+                _storage.set('preferences', preferences);
+            },
             startRefreshAccessToken: function () {
                 var self = this;
 
@@ -115,11 +127,32 @@
                                 project.members[member.uid] = member;
                             }
                         });
-                        return resolve(null, project.members);
+                        return resolve(project.members);
                     }, function (response) {
                         return reject(response);
                     });
                 });
+            },
+            getProjectEntriesPromise: function (project) {
+                var self = this;
+                return $q(function (resolve, reject) {
+                    $http({
+                        method: 'GET',
+                        url: 'https://api.worktile.com/v1/entries?pid=' + project.pid,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'access_token': self.getToken().access_token
+                        }
+                    }).then(function (response, status) {
+                        project.entries = {};
+                        angular.forEach(response.data, function (entry) {
+                            project.entries[entry.entry_id] = entry;
+                        });
+                        return resolve(project.entries);
+                    }, function (response) {
+                        return reject(response);
+                    });
+                });                
             },
             getProjectsPromise: function () {
                 var self = this;
@@ -147,6 +180,7 @@
                             });
                             if (matched) {
                                 result[lastPorject.pid].members = lastPorject.members;
+                                result[lastPorject.pid].entries = lastPorject.entries;
                                 return resolve(result);
                             }
                             else {
@@ -227,26 +261,6 @@
                     }
                 });
             },
-            addPostFollowersPromise: function (pid, postId, uids) {
-                var self = this;
-                return $q(function (resolve, reject) {
-                    $http({
-                        method: 'POST',
-                        url: 'https://api.worktile.com/v1/posts/' + postId + '/watcher?pid=' + pid,
-                        headers: {
-                            // 'Content-Type': 'application/json',
-                            'access_token': self.getToken().access_token
-                        },
-                        data: {
-                            uids: uids
-                        }
-                    }).then(function (response, status) {
-                        return resolve(response.data);
-                    }, function (response) {
-                        return reject(response);
-                    });
-                });
-            },
             createPostPromise: function (post) {
                 var self = this;
                 return $q(function (resolve, reject) {
@@ -263,13 +277,58 @@
                                 content: post.content
                             }
                         }).then(function (response, status) {
-                            return resolve(response.data);
+                            if (post.followers.length > 0) {
+                                $http({
+                                    method: 'POST',
+                                    url: 'https://api.worktile.com/v1/posts/' + postId + '/watcher?pid=' + pid,
+                                    headers: {
+                                        // 'Content-Type': 'application/json',
+                                        'access_token': self.getToken().access_token
+                                    },
+                                    data: {
+                                        uids: uids
+                                    }
+                                }).then(function (response, status) {
+                                    return resolve(response.data);
+                                }, function (response) {
+                                    return reject(response);
+                                });
+                            }
+                            else {
+                                return resolve(response.data);
+                            }
                         }, function (response) {
                             return reject(response);
                         });
                     }
                     else {
                         return reject('Invalid post value. ' + angular.toJson(post));
+                    }
+                });
+            },
+            createTaskPromise: function (task) {
+                var self = this;
+                return $q(function (resolve, reject) {
+                    if (task && task.pid && task.title) {
+                        $http({
+                            method: 'POST',
+                            url: 'https://api.worktile.com/v1/post?pid=' + task.pid,
+                            headers: {
+                                // 'Content-Type': 'application/json',
+                                'access_token': self.getToken().access_token
+                            },
+                            data: {
+                                name: task.title,
+                                content: task.content
+                            }
+                        }).then(function (response, status) {
+                            return resolve(response.data);
+                        }, function (response) {
+                            return reject(response);
+                        });
+                    }
+                    else {
+                        return reject('Invalid task value. ' + angular.toJson(task));
                     }
                 });
             },

@@ -72,6 +72,24 @@
             setCurrentUser: function (me) {
                 _storage.set('me', me);
             },
+            pid: function (pid) {
+                if (pid) {
+                    _storage.set('pid', pid);
+                }
+                else {
+                    pid = _storage.get('pid');
+                }
+                return pid;
+            },
+            eid: function (eid) {
+                if (eid) {
+                    _storage.set('eid', pid);
+                }
+                else {
+                    eid = _storage.get('eid');
+                }
+                return eid;
+            },
             getLastProject: function () {
                 return _storage.get('lastPorject');
             },

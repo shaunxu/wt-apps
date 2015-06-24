@@ -11,6 +11,14 @@
     });
 
     app.controller('MasterController', function ($scope, $http, $q, $timeout, $worktile) {
+        var _showError = function (error) {
+            alert(angular.toJson(error, true));
+        };
+
+        var _showInformation = function (info) {
+            alert(angular.toJson(info, true));
+        };
+
         $scope.__loading = false;
         $scope.name = $worktile.name;
 
@@ -20,6 +28,7 @@
             post: 3,
             document: 4
         };
+        $scope.type = $scope.types.task;
 
         $scope.reset = function (all) {
             $scope.target = {
@@ -32,125 +41,185 @@
             };
             if (all) {
                 $scope.type = $scope.types.task;
-                $scope.me = $worktile.getCurrentUser() || {};
                 $scope.me = {};
                 $scope.projects = {};                
             }
         };
         $scope.reset(true);
 
-        $scope.type = $scope.types.task;
-        $scope.me = $worktile.getCurrentUser() || {};
-
-        // we must use $timeout to let the page rendered
-        // otherwise the entry id cannot be set properly
-        $timeout(function () {
-            var lastProject = $worktile.getLastProject();
-            if (lastProject) {
-                $scope.target.pid = lastProject.pid;
-                $scope.projects = {};
-                $scope.projects[$scope.target.pid] = lastProject;
+        var _overwrite = function (dst, objs) {
+            var obj = {};
+            for (var i = 0, ii = objs.length; i < ii; ++i) {
+                obj = angular.merge({}, obj, objs[i]);
             }
-        });
-        $timeout(function () {
-            var lastEntry = $worktile.getLastEntry();
-            if (lastEntry) {
-                $scope.target.eid = lastEntry.entry_id;
-            }
-        });
 
-        var _showError = function (error) {
-            alert(angular.toJson(error, true));
-        };
-
-        var _showInformation = function (info) {
-            alert(angular.toJson(info, true));
-        };
-
-        $scope.$watch('target.pid', function (pid) {
-            if ($scope.projects) {
-                var project = $scope.projects[pid];
-                if (project) {
-                    $scope.__loading = true;
-                    var tryGetEntriesPromise = $q(function (resolve, reject) {
-                        if (project.entries && Object.getOwnPropertyNames(project.entries).length > 0) {
-                            return resolve(project.entries);
-                        }
-                        else {
-                            $worktile.getProjectEntriesPromise(project)
-                                .then(function () {
-                                    return resolve(project);
-                                })
-                                .catch(function () {
-                                    return reject();
-                                });
-                        }
-                    });
-                    var tryGetMembersPromise = $q(function (resolve, reject) {
-                        if (project.members && Object.getOwnPropertyNames(project.members).length > 0) {
-                            return resolve(project.members);
-                        }
-                        else {
-                            $worktile.getProjectMembersPromise(project)
-                                .then(function () {
-                                    return resolve(project);
-                                })
-                                .catch(function () {
-                                    return reject();
-                                });
-                        }
-                    });
-                    $q.all([tryGetEntriesPromise, tryGetMembersPromise])
-                        .then(function () {
-                            $worktile.setLastProject(project);
-                            var eids = Object.getOwnPropertyNames(project.entries);
-                            if (eids.length > 0) {
-                                $scope.target.eid = eids[0];
-                                $worktile.setLastEntry(project.entries[eids[0]]);
-                            }
-                        })
-                        .catch(function (error) {
-                            _showError(error);
-                        })
-                        .finally(function () {
-                            $scope.__loading = false;
-                        });
-                }                
-            }
-        });
-
-        $scope.$watch('target.eid', function (eid) {
-            if ($scope.target.pid) {
-                var project = $scope.projects[$scope.target.pid];
-                if (project && project.entries && project.entries[eid]) {
-                    $worktile.setLastEntry(project.entries[eid]);
+            var keys = Object.keys(dst);
+            for (var j = 0, jj = keys.length; j < jj; j++) {
+                if (!obj.hasOwnProperty(keys[j])) {
+                    delete dst[keys[j]];
                 }
             }
-        });
 
-        if ($worktile.isLoggedIn()) {
+            dst = angular.merge({}, dst, obj);
+            return dst;
+        };
+
+        var _ResumeSelectedProjectAndEntry = function () {
+            var lastPid = $worktile.pid();
+            if (lastPid && $scope.projects.hasOwnProperty(lastPid)) {
+                $scope.target.pid = lastPid;
+            }
+            else {
+                var pids = Object.getOwnPropertyNames($scope.projects);
+                if (pids.length > 0) {
+                    $scope.target.pid = $scope.projects[pids[0]].pid;
+                }
+                else {
+                    $scope.target.pid = null;
+                }
+            }
+
+            var lastEid = $worktile.eid();
+            var selectedProject = $scope.projects[$scope.target.pid];
+            if (lastEid && selectedProject.entries.hasOwnProperty(lastEid)) {
+                $scope.target.eid = lastEid;
+            }
+            else {
+                var eids = Object.getOwnPropertyNames(selectedProject.entries);
+                if (eids.length > 0) {
+                    $scope.target.eid = selectedProject.entries[eids[0]].entry_id;
+                }
+                else {
+                    $scope.target.eid = null;
+                }
+            }
+        };
+        
+        var _refreshProjects = function () {
+            $scope.__loading = true;
             $worktile.getProjectsPromise()
                 .then(function (projects) {
-                    $timeout(function () {
-                        $scope.projects = projects;
-                    });
-                    var lastProject = $worktile.getLastProject();
-                    var lastEntry = $worktile.getLastEntry();
-                    // we must use $timeout to let the page rendered
-                    // otherwise the entry id cannot be set properly
-                    $timeout(function () {
-                        $scope.target.pid = lastProject && lastProject.pid;
-                    });
-                    $timeout(function () {
-                        $scope.target.eid = lastEntry && lastEntry.entry_id;
-                    });
+                    _overwrite($scope.projects, projects);
+                    _ResumeSelectedProjectAndEntry();
                 })
                 .catch(function (error) {
                     _showError(error);
                 })
                 .finally(function () {
+                    $scope.__loading = false;
+                });
+        };
+
+        if ($worktile.isLoggedIn()) {
+            $scope.__loading = true;
+            $scope.me = $worktile.getCurrentUser();
+            $worktile.getProjectsPromise()
+                .then(function (projects) {
+                    $scope.projects = projects;
+
+                    var lastPid = $worktile.pid();
+                    if (lastPid && $scope.projects.hasOwnProperty(lastPid)) {
+                        $scope.target.pid = lastPid;
+                    }
+                    else {
+                        var pids = Object.getOwnPropertyNames($scope.projects);
+                        if (pids.length > 0) {
+                            $scope.target.pid = $scope.projects[pids[0]].pid;
+                        }
+                        else {
+                            $scope.target.pid = null;
+                        }
+                    }
+
+                    return $q.all([
+                        $worktile.getProjectMembersPromise($scope.projects[$scope.target.pid]),
+                        $worktile.getProjectEntriesPromise($scope.projects[$scope.target.pid])
+                    ]);
+                })
+                .then(function () {
+                    var lastEid = $worktile.eid();
+                    var selectedProject = $scope.projects[$scope.target.pid];
+                    if (lastEid && selectedProject.entries.hasOwnProperty(lastEid)) {
+                        $scope.target.eid = lastEid;
+                    }
+                    else {
+                        var eids = Object.getOwnPropertyNames(selectedProject.entries);
+                        if (eids.length > 0) {
+                            $scope.target.eid = selectedProject.entries[eids[0]].entry_id;
+                        }
+                        else {
+                            $scope.target.eid = null;
+                        }
+                    }
+                })
+                .catch(function (error) {
+                    _showError(error);
+                })
+                .finally(function () {
+                    $scope.__loading = false;
                 });
         }
+
+        // $scope.$watch('target.pid', function (pid) {
+        //     if ($scope.projects) {
+        //         var project = $scope.projects[pid];
+        //         if (project) {
+        //             $scope.__loading = true;
+        //             var tryGetEntriesPromise = $q(function (resolve, reject) {
+        //                 if (project.entries && Object.getOwnPropertyNames(project.entries).length > 0) {
+        //                     return resolve(project.entries);
+        //                 }
+        //                 else {
+        //                     $worktile.getProjectEntriesPromise(project)
+        //                         .then(function () {
+        //                             return resolve(project);
+        //                         })
+        //                         .catch(function () {
+        //                             return reject();
+        //                         });
+        //                 }
+        //             });
+        //             var tryGetMembersPromise = $q(function (resolve, reject) {
+        //                 if (project.members && Object.getOwnPropertyNames(project.members).length > 0) {
+        //                     return resolve(project.members);
+        //                 }
+        //                 else {
+        //                     $worktile.getProjectMembersPromise(project)
+        //                         .then(function () {
+        //                             return resolve(project);
+        //                         })
+        //                         .catch(function () {
+        //                             return reject();
+        //                         });
+        //                 }
+        //             });
+        //             $q.all([tryGetEntriesPromise, tryGetMembersPromise])
+        //                 .then(function () {
+        //                     $worktile.setLastProject(project);
+        //                     var eids = Object.getOwnPropertyNames(project.entries);
+        //                     if (eids.length > 0) {
+        //                         $scope.target.eid = eids[0];
+        //                         $worktile.setLastEntry(project.entries[eids[0]]);
+        //                     }
+        //                 })
+        //                 .catch(function (error) {
+        //                     _showError(error);
+        //                 })
+        //                 .finally(function () {
+        //                     $scope.__loading = false;
+        //                 });
+        //         }                
+        //     }
+        // });
+
+        // $scope.$watch('target.eid', function (eid) {
+        //     if ($scope.target.pid) {
+        //         var project = $scope.projects[$scope.target.pid];
+        //         if (project && project.entries && project.entries[eid]) {
+        //             $worktile.setLastEntry(project.entries[eid]);
+        //         }
+        //     }
+        // });
 
         $scope.copy = function () {
             chrome.tabs.query({
@@ -177,7 +246,41 @@
                 })
                 .then(function (projects) {
                     $scope.projects = projects;
-                    $scope.target.pid = $worktile.getLastProject().pid;
+
+                    var lastPid = $worktile.pid();
+                    if (lastPid && $scope.projects.hasOwnProperty(lastPid)) {
+                        $scope.target.pid = lastPid;
+                    }
+                    else {
+                        var pids = Object.getOwnPropertyNames($scope.projects);
+                        if (pids.length > 0) {
+                            $scope.target.pid = $scope.projects[pids[0]].pid;
+                        }
+                        else {
+                            $scope.target.pid = null;
+                        }
+                    }
+
+                    return $q.all([
+                        $worktile.getProjectMembersPromise($scope.projects[$scope.target.pid]),
+                        $worktile.getProjectEntriesPromise($scope.projects[$scope.target.pid])
+                    ]);
+                })
+                .then(function () {
+                    var lastEid = $worktile.eid();
+                    var selectedProject = $scope.projects[$scope.target.pid];
+                    if (lastEid && selectedProject.entries.hasOwnProperty(lastEid)) {
+                        $scope.target.eid = lastEid;
+                    }
+                    else {
+                        var eids = Object.getOwnPropertyNames(selectedProject.entries);
+                        if (eids.length > 0) {
+                            $scope.target.eid = selectedProject.entries[eids[0]].entry_id;
+                        }
+                        else {
+                            $scope.target.eid = null;
+                        }
+                    }
                 })
                 .catch(function (error) {
                     _showError(error);
@@ -255,7 +358,7 @@
                 })
                 .then(function (projects) {
                     $scope.projects = projects;
-                    $scope.target.pid = $worktile.getLastProject().pid;
+                    _ResumeSelectedProjectAndEntry();
                     return $q.all([
                         $worktile.getProjectMembersPromise($scope.projects[$scope.target.pid]),
                         $worktile.getProjectEntriesPromise($scope.projects[$scope.target.pid])

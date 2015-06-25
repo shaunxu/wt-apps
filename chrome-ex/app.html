@@ -23,7 +23,6 @@
         </div>
       </div>
     </div>
-    <pre>{{projects | json}}</pre>
     <div class="panel panel-info wt-container">
       <div class="panel-heading wt-header">
         <img ng-show="me.uid" ng-src="{{me.avatar}}" class="wt-avatar pull-right">
@@ -104,7 +103,7 @@
         </div>
         <div class="btn-group pull-right" role="group">
           <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
-          <button ng-disabled="!me.uid || !post.pid" type="button" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit</button>
+          <button ng-disabled="!me.uid || !target.pid" type="button" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit</button>
         </div>
       </div>
     </div>

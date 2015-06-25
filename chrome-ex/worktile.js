@@ -5,31 +5,6 @@
     worktile.value('$redirectURL', chrome.identity.getRedirectURL());
 
     worktile.factory('$worktile', function ($http, $interval, $q, $clientId, $redirectURL) {
-        var _getParameterByName = function (url, name) {
-            name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                results = regex.exec(url);
-            return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-        };
-
-        var _getRemoveCookiePromise = function (url, name) {
-            return $q(function (resolve, reject) {
-                try
-                {
-                    chrome.cookies.remove({
-                        url: url,
-                        name: name
-                    }, function (details) {
-                        return resolve(details);
-                    });
-                }
-                catch (ex)
-                {
-                    return reject(ex);
-                }
-            });
-        };
-
         var _storage = {
             get: function (key) {
                 var raw = localStorage[key];
@@ -90,23 +65,14 @@
                 }
                 return eid;
             },
-            getLastProject: function () {
-                return _storage.get('lastPorject');
-            },
-            setLastProject: function (project) {
-                _storage.set('lastPorject', project);
-            },
-            getLastEntry: function () {
-                return _storage.get('lastEntry');
-            },
-            setLastEntry: function (entry) {
-                _storage.set('lastEntry', entry);
-            },
-            getPreferences: function () {
-                _storage.get('preferences');
-            },
-            setPreferences: function (preferences) {
-                _storage.set('preferences', preferences);
+            lastProject: function (project) {
+                if (project) {
+                    _storage.set('lp', project);
+                }
+                else {
+                    project = _storage.get('lp');
+                }
+                return eid;
             },
             startRefreshAccessToken: function () {
                 var self = this;
@@ -120,11 +86,9 @@
                 var self = this;
                 var token = self.getToken();
                 var me = self.getCurrentUser();
-                var lastProject = self.getLastProject();
                 return ( 
                     token && token.access_token && token.expires_in && token.refresh_token &&
-                    me && me.uid &&
-                    lastProject && lastProject.pid
+                    me && me.uid
                 );
             },
             getProjectMembersPromise: function (project) {
@@ -185,38 +149,14 @@
                     }).then(function (response) {
                         var projects = response.data;
                         var result = {};
-                        if (projects.length > 0) {
-                            var lastPorject = self.getLastProject() || {};
-                            var matched = false;
-                            angular.forEach(projects, function (project) {
-                                if (project.archived === 0) {
-                                    if (project.pid === lastPorject.pid) {
-                                        matched = true;
-                                    }
-                                    result[project.pid] = project;
-                                }
-                            });
-                            if (matched) {
-                                result[lastPorject.pid].members = lastPorject.members;
-                                result[lastPorject.pid].entries = lastPorject.entries;
-                                return resolve(result);
+                        angular.forEach(projects, function (project) {
+                            if (project.archived === 0) {
+                                project.members = {};
+                                project.entries = {};
+                                result[project.pid] = project;
                             }
-                            else {
-                                lastPorject = projects[0];
-                                self.getProjectMembersPromise(lastPorject)
-                                    .then(function () {
-                                        self.setLastProject(lastPorject);
-                                        return resolve(result);
-                                    })
-                                    .catch(function (error) {
-                                        return reject(error);
-                                    });
-                            }
-                        }
-                        else {
-                            self.setLastProject(null);
-                            return resolve(result);
-                        }
+                        });
+                        return resolve(result);
                     }, function (response) {
                         return reject(response);
                     });
@@ -253,7 +193,12 @@
                             url: 'https://open.worktile.com/oauth2/authorize?client_id=' + $clientId + '&redirect_uri=' + $redirectURL + '&display=mobile',
                             interactive: true
                         }, function (responseUrl) {
-                            var code = _getParameterByName(responseUrl, 'code');
+                            var code = (function (url, name) {
+                                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                                    results = regex.exec(url);
+                                return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+                            })(responseUrl, 'code');
                             if (code) {
                                 $http({
                                     method: 'POST',
@@ -326,21 +271,96 @@
             },
             createTaskPromise: function (task) {
                 var self = this;
+                var result = {};
                 return $q(function (resolve, reject) {
-                    if (task && task.pid && task.title) {
+                    if (task && task.pid && task.name) {
                         $http({
                             method: 'POST',
-                            url: 'https://api.worktile.com/v1/post?pid=' + task.pid,
+                            url: 'https://api.worktile.com/v1/task?pid=' + task.pid,
                             headers: {
                                 // 'Content-Type': 'application/json',
                                 'access_token': self.getToken().access_token
                             },
                             data: {
-                                name: task.title,
-                                content: task.content
+                                name: task.name,
+                                entry_id: task.eid
                             }
                         }).then(function (response, status) {
-                            return resolve(response.data);
+                            result = response.data;
+                            var setDescriptionPromise = (function (name, desc, pid, tid) {
+                                if (angular.isString(desc) && desc.length > 0) {
+                                    return $http({
+                                        method: 'PUT',
+                                        url: 'https://api.worktile.com/v1/tasks/' + tid + '?pid=' + pid,
+                                        headers: {
+                                            // 'Content-Type': 'application/json',
+                                            'access_token': self.getToken().access_token
+                                        },
+                                        data: {
+                                            name: name,
+                                            desc: desc
+                                        }
+                                    });
+                                }
+                                else {
+                                    return $q(function (resolve, reject) {
+                                        return resolve();
+                                    });
+                                }
+                            })(result.name, task.description, result.pid, result.tid);
+
+                            var assignTaskPromises = (function (pid, tid, assignees) {
+                                if (assignees && assignees.length > 0) {
+                                    var promises = [];
+                                    angular.forEach(assignees, function (assignee) {
+                                        promises.push($http({
+                                            method: 'POST',
+                                            url: 'https://api.worktile.com/v1/tasks/' + tid + '/member?pid=' + pid,
+                                            headers: {
+                                                // 'Content-Type': 'application/json',
+                                                'access_token': self.getToken().access_token
+                                            },
+                                            data: {
+                                                uid: assignee
+                                            }
+                                        }));
+                                    });
+                                    return promises;
+                                }
+                                else {
+                                    return [$q(function (resolve, reject) {
+                                        return resolve();
+                                    })];
+                                }
+                            })(result.pid, result.tid, task.assignees);
+
+                            var followTaskPromise = (function (pid, tid, followers) {
+                                if (followers && followers.length > 0) {
+                                    return $http({
+                                        method: 'POST',
+                                        url: 'https://api.worktile.com/v1/tasks/' + tid + '/watcher?pid=' + pid,
+                                        headers: {
+                                            // 'Content-Type': 'application/json',
+                                            'access_token': self.getToken().access_token
+                                        },
+                                        data: {
+                                            uids: followers
+                                        }
+                                    });
+                                }
+                                else {
+                                    return $q(function (resolve, reject) {
+                                        return resolve();
+                                    });
+                                }
+                            })(result.pid, result.tid, task.followers);
+
+                            $q.all([].concat(setDescriptionPromise, assignTaskPromises, followTaskPromise))
+                                .then(function () {
+                                    return resolve(result);
+                                }, function (error) {
+                                    return reject(error);
+                                });
                         }, function (response) {
                             return reject(response);
                         });
@@ -365,29 +385,6 @@
                             }
                             return resolve();
                         });
-
-                        // chrome.cookies.getAll({}, function (cookies) {
-                        //     alert(angular.toJson(cookies, true));
-                        //     if (cookies && cookies.length > 0) {
-                        //         var promises = [];
-                        //         angular.forEach(cookies, function (cookie) {
-                        //             cookie.url = (cookie.secure ? "https://" : "http://") + (cookie.domain.charAt(0) === "." ? 'www' : '') + cookie.domain;
-                        //             promises.push(_getRemoveCookiePromise(cookie.url, cookie.name));
-                        //         });
-                        //         $q.all(promises)
-                        //             .then(function () {
-                        //                 alert('done');
-                        //                 return resolve();
-                        //             })
-                        //             .catch(function () {
-                        //                 alert('failed');
-                        //                 return reject();
-                        //             });
-                        //     }
-                        //     else {
-                        //         return resolve();
-                        //     }
-                        // });
                     }
                     catch (ex) {
                         return reject(ex);

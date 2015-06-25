@@ -65,7 +65,7 @@
                 <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
               </label>
               <select required class="form-control" ng-model="target.pid" name="pid">
-                <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
+                <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}} - {{project.pid}}</option>
               </select>
             </div>
             <div class="form-group" ng-show="type === types.task">
@@ -73,7 +73,7 @@
                 <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> List
               </label>
               <select required class="form-control" ng-model="target.eid" name="eid">
-                <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}}</option>
+                <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}} - {{entry.entry_id}}</option>
               </select>
             </div>
             <div class="form-group" ng-show="type === types.task">

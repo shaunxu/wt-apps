@@ -58,7 +58,7 @@
             },
             eid: function (eid) {
                 if (eid) {
-                    _storage.set('eid', pid);
+                    _storage.set('eid', eid);
                 }
                 else {
                     eid = _storage.get('eid');
@@ -72,7 +72,7 @@
                 else {
                     project = _storage.get('lp');
                 }
-                return eid;
+                return project;
             },
             startRefreshAccessToken: function () {
                 var self = this;
@@ -126,10 +126,17 @@
                             'access_token': self.getToken().access_token
                         }
                     }).then(function (response, status) {
-                        project.entries = {};
-                        angular.forEach(response.data, function (entry) {
-                            project.entries[entry.entry_id] = entry;
+                        var eids = Object.keys(project.entries);
+                        angular.forEach(eids, function (eid) {
+                            if (!response.data.hasOwnProperty(eid)) {
+                                delete project.entries[eid]
+                            }
                         });
+                        var nes = {};
+                        angular.forEach(response.data, function (entry) {
+                            nes[entry.entry_id] = entry;
+                        });
+                        angular.extend(project.entries, nes);
                         return resolve(project.entries);
                     }, function (response) {
                         return reject(response);
@@ -151,8 +158,8 @@
                         var result = {};
                         angular.forEach(projects, function (project) {
                             if (project.archived === 0) {
-                                project.members = {};
-                                project.entries = {};
+                                // project.members = {};
+                                // project.entries = {};
                                 result[project.pid] = project;
                             }
                         });

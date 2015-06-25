@@ -60,7 +60,7 @@
                 }
             }
 
-            dst = angular.merge({}, dst, obj);
+            dst = angular.merge(dst, obj);
             return dst;
         };
 
@@ -110,21 +110,37 @@
         //         });
         // };
 
-        if ($worktile.isLoggedIn()) {
-            $scope.__loading = true;
-            $scope.me = $worktile.getCurrentUser();
-            $worktile.getProjectsPromise()
+        var _refreshScopeProjectsPromise = function (pid, eid) {
+            var npid = pid;
+            var neid = eid;
+            return $worktile.getProjectsPromise()
                 .then(function (projects) {
-                    $scope.projects = projects;
-
-                    $scope.target.pid = (function (pids) {
-                        return pids.length > 0 ? pids[0] : null;
-                    })(Object.keys($scope.projects));
-
-                    if ($scope.target.pid) {
+                    // remove projects that's not in the list
+                    var oldPids = Object.keys($scope.projects);
+                    angular.forEach(oldPids, function (oldPid) {
+                        if (!projects.hasOwnProperty(oldPid)) {
+                            delete $scope.projects[oldPid];
+                        }
+                    });
+                    // add or update projects that's in the list
+                    angular.forEach(projects, function (np) {
+                        if ($scope.projects.hasOwnProperty(np.pid)) {
+                            angular.extend($scope.projects[np.pid], np);
+                        }
+                        else {
+                            $scope.projects[np.pid] = np;
+                        }
+                    });
+                    // confirm selected project does exist after reloaded projects
+                    if (!pid || !$scope.projects[pid]) {
+                        var pids = Object.keys($scope.projects);
+                        npid = pids.length > 0 ? pids[0] : null;
+                    }
+                    // load members and enteries for selected project
+                    if (npid) {
                         return $q.all([
-                            $worktile.getProjectMembersPromise($scope.projects[$scope.target.pid]),
-                            $worktile.getProjectEntriesPromise($scope.projects[$scope.target.pid])
+                            $worktile.getProjectMembersPromise($scope.projects[npid]),
+                            $worktile.getProjectEntriesPromise($scope.projects[npid])
                         ]);                        
                     }
                     else {
@@ -134,17 +150,94 @@
                     }
                 })
                 .then(function () {
-                })
-                .catch(function (error) {
-                    _showError(error);
-                })
-                .finally(function () {
-                    $scope.__loading = false;
+                    alert(eid);
+                    alert(angular.toJson($scope.projects[npid].entries[eid], true));
+                    if (!eid || !$scope.projects[npid].entries[eid]) {
+                        var eids = Object.keys($scope.projects[npid].entries);
+                        neid = eids.length > 0 ? eids[0] : null;
+                    }
+                    return {
+                        pid: npid,
+                        eid: neid
+                    }
                 });
+        };
+
+        if ($worktile.isLoggedIn()) {
+            // load user and last project from storage
+            $scope.me = $worktile.getCurrentUser();
+            var project = $worktile.lastProject();
+            if (project) {
+                $scope.projects[project.pid] = project;
+                $scope.target.pid = project.pid;
+                $timeout(function () {
+                    var eid = $worktile.eid();
+                    if (project.entries && project.entries[eid]) {
+                        $scope.target.eid = eid;
+                    }
+                    else {
+                        var eids = Object.keys(project.entries);
+                        if (eids.length > 0) {
+                            $scope.target.eid = eids[0];
+                        }
+                        else {
+                            $scope.target.eid = null;
+                        }
+                    }
+
+                    // load all projects (if we have last project, no need to show load cover)
+                    $scope.__loading = !angular.isObject(project);
+                    _refreshScopeProjectsPromise($scope.target.pid, $scope.target.eid)
+                        .then(function (result) {
+                            $scope.target.pid = result.pid;
+                            $scope.target.eid = result.eid;
+                        })
+                        .catch(function (error) {
+                            _showError(error);
+                        })
+                        .finally(function () {
+                            $scope.__loading = false;
+                        });
+                });
+            }
+
+            // $worktile.getProjectsPromise()
+            //     .then(function (projects) {
+            //         $scope.projects = projects;
+            //         // confirm selected project does exist after reloaded projects
+            //         if (!$scope.target.pid || !$scope.projects[$scope.target.pid]) {
+            //             var pids = Object.keys($scope.projects);
+            //             $scope.target.pid = pids.length > 0 ? pids[0] : null;
+            //         }
+            //         // load members and enteries for selected project
+            //         if ($scope.target.pid) {
+            //             return $q.all([
+            //                 $worktile.getProjectMembersPromise($scope.projects[$scope.target.pid]),
+            //                 $worktile.getProjectEntriesPromise($scope.projects[$scope.target.pid])
+            //             ]);                        
+            //         }
+            //         else {
+            //             return $q(function (resolve, reject) {
+            //                 return resolve();
+            //             });
+            //         }
+            //     })
+            //     .then(function () {
+            //         if (!$scope.target.eid || !$scope.projects[$scope.target.pid].entries[$scope.target.eid]) {
+            //             var eids = Object.keys($scope.projects[$scope.target.pid].entries);
+            //             $scope.target.eid = eids.length > 0 ? eids[0] : null;
+            //         }
+            //     })
+            //     .catch(function (error) {
+            //         _showError(error);
+            //     })
+            //     .finally(function () {
+            //         $scope.__loading = false;
+            //     });
         }
 
-        $scope.$watch('target.pid', function (pid) {
-            if (pid) {
+        $scope.$watch('target.pid', function (pid, oldValue) {
+            if (pid && oldValue && pid !== oldValue) {
                 var project  = $scope.projects[pid];
                 if (project) {
                     $scope.__loading = true;
@@ -285,8 +378,15 @@
 
             $q.when(promise)
                 .then(function (result) {
+                    $worktile.lastProject($scope.projects[$scope.target.pid]);
+                    $worktile.pid($scope.target.pid);
+                    if ($scope.type === $scope.types.task) {
+                        $worktile.eid($scope.target.eid);
+                    }
+
                     _showInformation('Well done.');
                     $scope.reset(false);
+
                     window.close();
                 })
                 .catch(function (error) {

@@ -26,10 +26,10 @@
     <div class="panel panel-info wt-container">
       <div class="panel-heading wt-header">
         <img ng-show="me.uid" ng-src="{{me.avatar}}" class="wt-avatar pull-right">
-        <h4 class="modal-title">{{name}}</h4>
+        <h3 class="modal-title">{{name}}</h3>
       </div>
       <div class="panel-body">
-        <div class="type-selection">
+        <div class="type-selection" ng-if="false">
           <div class="btn-group " role="group">
             <button type="button" class="btn btn-default" ng-click="type = types.task">
               <span ng-class="type === types.task ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Task
@@ -47,47 +47,35 @@
         </div>
 
         <form novalidate name="targetForm">
-          <div class="form-group">
-            <label for="name">
-              <span class="glyphicon glyphicon-bullhorn" aria-hidden="true"></span> Title
-            </label>
-            <input required type="text" class="form-control" id="title" name="title" placeholder="Title" ng-model="target.title">
+          <div class="input-group" title="Name">
+            <span class="input-group-addon"><span class="glyphicon glyphicon-fire"></span></span>
+            <input required type="text" class="form-control" id="title" name="title" placeholder="Name" ng-model="target.title">
           </div>
-          <div class="form-group">
-            <label for="content">
-              <span class="glyphicon glyphicon-edit" aria-hidden="true"></span> Content
-            </label>
-            <textarea class="form-control" rows="3" name="content" placeholder="Topic content" ng-model="target.content"></textarea>
+          <div class="input-group" title="Description">
+            <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-edit"></span></span>
+            <textarea class="form-control" rows="3" name="content" placeholder="Description" ng-model="target.content"></textarea>
           </div>
           <fieldset class="project-selector" ng-disabled="!me.uid">
-            <div class="form-group">
-              <label for="pid">
-                <span class="glyphicon glyphicon-inbox" aria-hidden="true"></span> Project
-              </label>
+            <div class="input-group" title="Project">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-inbox"></span></span>
               <select required class="form-control" ng-model="target.pid" name="pid">
-                <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}} - {{project.pid}}</option>
+                <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
               </select>
             </div>
-            <div class="form-group" ng-show="type === types.task">
-              <label for="eid">
-                <span class="glyphicon glyphicon-tasks" aria-hidden="true"></span> List
-              </label>
+            <div class="input-group" title="List">
+              <span class="input-group-addon"><span class="glyphicon glyphicon-th-list"></span></span>
               <select required class="form-control" ng-model="target.eid" name="eid">
-                <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}} - {{entry.entry_id}}</option>
+                <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}}</option>
               </select>
             </div>
-            <div class="form-group" ng-show="type === types.task">
-              <label for="assignees">
-                <span class="glyphicon glyphicon-user" aria-hidden="true"></span> Assignees
-              </label>
+            <div class="input-group" title="Assignee(s)">
+              <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-user"></span></span>
               <select multiple class="form-control" ng-model="target.assignees" name="assignees">
                 <option ng-repeat="member in projects[target.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
               </select>
             </div>
-            <div class="form-group">
-              <label for="followers">
-                <span class="glyphicon glyphicon-thumbs-up" aria-hidden="true"></span> Followers
-              </label>
+            <div class="input-group" title="Follower(s)">
+              <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-thumbs-up"></span></span>
               <select multiple class="form-control" ng-model="target.followers" name="followers">
                 <option ng-repeat="member in projects[target.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
               </select>

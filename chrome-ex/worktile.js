@@ -47,6 +47,15 @@
             setCurrentUser: function (me) {
                 _storage.set('me', me);
             },
+            projects: function (projects) {
+                if (projects) {
+                    _storage.set('pjs', projects);
+                }
+                else {
+                    projects = _storage.get('pjs');
+                }
+                return projects;
+            },
             pid: function (pid) {
                 if (pid) {
                     _storage.set('pid', pid);
@@ -106,7 +115,10 @@
                         angular.forEach(response.data, function (member) {
                             // only dealing with members with normal status
                             if (member.status === 1) {
-                                project.members[member.uid] = member;
+                                project.members[member.uid] = {
+                                    uid: member.uid,
+                                    display_name: member.display_name
+                                };
                             }
                         });
                         return resolve(project.members);
@@ -126,17 +138,13 @@
                             'access_token': self.getToken().access_token
                         }
                     }).then(function (response, status) {
-                        var eids = Object.keys(project.entries);
-                        angular.forEach(eids, function (eid) {
-                            if (!response.data.hasOwnProperty(eid)) {
-                                delete project.entries[eid]
+                        project.entries = {};
+                        angular.forEach(response.data, function (entry) {
+                            project.entries[entry.entry_id] = {
+                                entry_id: entry.entry_id,
+                                name: entry.name
                             }
                         });
-                        var nes = {};
-                        angular.forEach(response.data, function (entry) {
-                            nes[entry.entry_id] = entry;
-                        });
-                        angular.extend(project.entries, nes);
                         return resolve(project.entries);
                     }, function (response) {
                         return reject(response);
@@ -154,13 +162,15 @@
                             'access_token': self.getToken().access_token
                         }
                     }).then(function (response) {
-                        var projects = response.data;
                         var result = {};
-                        angular.forEach(projects, function (project) {
+                        angular.forEach(response.data, function (project) {
                             if (project.archived === 0) {
-                                // project.members = {};
-                                // project.entries = {};
-                                result[project.pid] = project;
+                                result[project.pid] = {
+                                    pid: project.pid,
+                                    name: project.name,
+                                    members: {},
+                                    entries: {}
+                                };
                             }
                         });
                         return resolve(result);

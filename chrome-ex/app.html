@@ -14,6 +14,16 @@
     <script src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController">
+
+<div class="alert wt-alert" ng-class="message.error ? 'alert-danger' : 'alert-success'" ng-show="message">
+  <button type="button" class="close" ng-click="message = null"><span class="glyphicon glyphicon-remove"></span></button>
+  <button type="button" class="close" ng-show="message.details" ng-click="__showDetails = !__showDetails">
+    <span ng-class="__showDetails ? 'glyphicon glyphicon-zoom-out' : 'glyphicon glyphicon-zoom-in'"></span>
+  </button>
+  <p>{{message.title}}</p>
+  <pre class="wt-pre" ng-show="message.details && __showDetails">{{message.details | json}}</pre>
+</div>
+
     <div class="cover" ng-show="__loading">
       <div class="outer">
         <div class="middle text-info">

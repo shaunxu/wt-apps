@@ -120,3 +120,14 @@ section { padding: 5px;}
   height: 40px;
   border-radius: 50%;
 }
+
+.wt-alert {
+  position: absolute;
+  z-index: 1999;
+  width: 100%;
+}
+
+.wt-pre {
+  font-size: 0.8em;
+  margin-top: 5px;
+}

@@ -11,14 +11,6 @@
     });
 
     app.controller('MasterController', function ($scope, $http, $q, $timeout, $worktile) {
-        var _showError = function (error) {
-            alert(angular.toJson(error, true));
-        };
-
-        var _showInformation = function (info) {
-            alert(angular.toJson(info, true));
-        };
-
         $scope.__loading = false;
         $scope.__refreshing = false;
         $scope.name = $worktile.name;
@@ -36,6 +28,25 @@
             document: 4
         };
         $scope.type = $scope.types.task;
+
+        $scope.message = null;
+        $scope.showMessage = function (isError, title, details, autoHide, callback) {
+            callback = callback || angular.noop;
+            $scope.message = {
+                error: isError,
+                title: title,
+                details: details
+            };
+            if (autoHide) {
+                $timeout(function () {
+                    $scope.message = null;
+                    return callback();
+                }, 1500);
+            }
+            else {
+                return callback();
+            }
+        };
 
         $scope.reset = function (all) {
             $scope.target = {
@@ -135,7 +146,7 @@
             $scope.mode = $worktile.mode() || $scope.modes.express;
             loadProjects(function (error, projects) {
                 if (error) {
-                    _showError(error);
+                    $scope.showMessage(true, 'Failed to load projects.', error, false, null);
                 }
                 else {
                     _reloadProjects(projects, $worktile.pid(), $worktile.eid(), function () {
@@ -185,7 +196,7 @@
                             $worktile.projects($scope.projects);
                         })
                         .catch(function (error) {
-                            _showError(error);
+                            $scope.showMessage(true, 'Failed to load project members and entries when switched.', error, false, null);
                         })
                         .finally(function () {
                             $scope.__loading = false;
@@ -246,7 +257,7 @@
                     });
                 })
                 .catch(function (error) {
-                    _showError(error);
+                    $scope.showMessage(true, 'Login failed.', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;
@@ -260,7 +271,7 @@
                     $scope.reset(true);
                 })
                 .catch(function (error) {
-                    _showError(error);
+                    $scope.showMessage(true, 'Logout failed.', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;
@@ -269,11 +280,11 @@
 
         $scope.submit = function () {
             if (!$scope.target.title) {
-                _showError('Post title is required.');
+                $scope.showMessage(true, 'Name is required.', null, false, null);
                 return;
             }
             if (!$scope.target.pid) {
-                _showError('Project is required.');
+                $scope.showMessage(true, 'Must choose a project.', null, false, null);
                 return;
             }
 
@@ -311,13 +322,13 @@
                         $worktile.eid($scope.target.eid);
                     }
 
-                    _showInformation('Well done.');
                     $scope.reset(false);
-
-                    window.close();
+                    $scope.showMessage(false, 'Submited successfully.', null, true, function () {
+                        window.close();
+                    });
                 })
                 .catch(function (error) {
-                    _showError(error);
+                    $scope.showMessage(true, 'Failed to submit.', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;
@@ -339,7 +350,7 @@
                     });
                 })
                 .catch(function (error) {
-                    _showError(error);
+                    $scope.showMessage(true, 'Failed to refresh.', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;

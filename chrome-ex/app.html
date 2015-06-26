@@ -50,6 +50,11 @@
           <div class="input-group" title="Name">
             <span class="input-group-addon"><span class="glyphicon glyphicon-fire"></span></span>
             <input required type="text" class="form-control" id="title" name="title" placeholder="Name" ng-model="target.title">
+            <span class="input-group-btn">
+              <button class="btn btn-default" type="button" ng-click="copy()" title="Insert page title and URL">
+                <span class="glyphicon glyphicon-copy"></span>
+              </button>
+            </span>
           </div>
           <div class="input-group" title="Description">
             <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-edit"></span></span>
@@ -82,16 +87,16 @@
             </div>
           </fieldset>
         </form>
-        </div>
-        <div class="btn-group" role="group">
-          <button type="button" class="btn btn-info" ng-click="me.uid ? logout() : login()">
-            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span>
+        <div class="btn-group pull-right toolbar" role="group">
+          <button type="button" class="btn btn-default" ng-click="me.uid ? logout() : login()">
+            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span> {{me.uid ? 'Logout' : 'Login'}}
           </button>
-          <button ng-show="me.uid" type="button" class="btn btn-info" ng-click="refresh()"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></button>
-        </div>
-        <div class="btn-group pull-right" role="group">
-          <button type="button" class="btn btn-default" ng-click="copy()"><span class="glyphicon glyphicon-copy" aria-hidden="true"></span> Copy from browser</button>
-          <button ng-disabled="!me.uid || !target.pid" type="button" class="btn btn-default" ng-click="submit()"><span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit</button>
+          <button ng-show="me.uid" type="button" class="btn btn-default" ng-click="refresh()">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh
+          </button>
+          <button ng-disabled="!me.uid || !target.pid" type="button" class="btn btn-default" ng-click="submit()">
+            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit
+          </button>
         </div>
       </div>
     </div>

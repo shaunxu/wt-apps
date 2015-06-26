@@ -111,3 +111,7 @@ section { padding: 5px;}
 .panel {
   margin-bottom: 0;
 }
+
+.toolbar {
+  margin-top: 5px;
+}

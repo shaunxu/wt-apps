@@ -181,11 +181,15 @@
                 active: true,
                 currentWindow: true
             }, function (tabs) {
-                var tab = tabs[0];
-                $scope.$apply(function () {
-                    $scope.target.title = tab.title;
-                    $scope.target.content = tab.url;
-                });
+                if (tabs && tabs.length > 0) {
+                    var tab = tabs[0];
+                    $scope.$apply(function () {
+                        $scope.target.title = $scope.target.title || '';
+                        $scope.target.title += ($scope.target.title.length > 0 ? ' ' : '') + tab.title;
+                        $scope.target.content = $scope.target.content || '';
+                        $scope.target.content += ($scope.target.content.length > 0 ? ' ' : '') + tab.url;
+                    });
+                }
             });
         };
 

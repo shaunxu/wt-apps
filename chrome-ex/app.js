@@ -4,13 +4,15 @@
     var client_id = '54599295762c424b8aced6e7ee891a47';
     var return_url = chrome.identity.getRedirectURL();
 
-    var app = angular.module('Worktile', ['ngMessages', 'ngWorktile']);
+    var app = angular.module('Worktile', ['ngMessages', 'ngWorktile', 'l10n', 'l10n-en-us', 'l10n-zh-cn']);
 
     app.config(function ($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
     });
 
-    app.controller('MasterController', function ($scope, $http, $q, $timeout, $worktile) {
+    app.controller('MasterController', function ($scope, $http, $q, $timeout, $worktile, $l10n) {
+        $l10n.locale = 'zh-cn';
+
         $scope.__loading = false;
         $scope.__refreshing = false;
         $scope.name = $worktile.name;
@@ -34,7 +36,7 @@
             callback = callback || angular.noop;
             $scope.message = {
                 error: isError,
-                title: title,
+                title: $l10n.get(title),
                 details: details
             };
             if (autoHide) {
@@ -60,7 +62,7 @@
             if (all) {
                 $scope.type = $scope.types.task;
                 $scope.me = {};
-                $scope.projects = {};                
+                $scope.projects = {};
             }
         };
         $scope.reset(true);
@@ -144,9 +146,10 @@
             $scope.__loading = true;
             $scope.me = $worktile.getCurrentUser();
             $scope.mode = $worktile.mode() || $scope.modes.express;
+            $l10n.locale = $worktile.locale() || 'zh-cn';
             loadProjects(function (error, projects) {
                 if (error) {
-                    $scope.showMessage(true, 'Failed to load projects.', error, false, null);
+                    $scope.showMessage(true, 'err-load-prj', error, false, null);
                 }
                 else {
                     _reloadProjects(projects, $worktile.pid(), $worktile.eid(), function () {
@@ -196,7 +199,7 @@
                             $worktile.projects($scope.projects);
                         })
                         .catch(function (error) {
-                            $scope.showMessage(true, 'Failed to load project members and entries when switched.', error, false, null);
+                            $scope.showMessage(true, 'err-load-members-entries', error, false, null);
                         })
                         .finally(function () {
                             $scope.__loading = false;
@@ -257,7 +260,7 @@
                     });
                 })
                 .catch(function (error) {
-                    $scope.showMessage(true, 'Login failed.', error, false, null);
+                    $scope.showMessage(true, 'err-login', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;
@@ -271,7 +274,7 @@
                     $scope.reset(true);
                 })
                 .catch(function (error) {
-                    $scope.showMessage(true, 'Logout failed.', error, false, null);
+                    $scope.showMessage(true, 'err-logout', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;
@@ -280,11 +283,11 @@
 
         $scope.submit = function () {
             if (!$scope.target.title) {
-                $scope.showMessage(true, 'Name is required.', null, false, null);
+                $scope.showMessage(true, 'err-name-required', null, false, null);
                 return;
             }
             if (!$scope.target.pid) {
-                $scope.showMessage(true, 'Must choose a project.', null, false, null);
+                $scope.showMessage(true, 'err-pid-required', null, false, null);
                 return;
             }
 
@@ -323,12 +326,12 @@
                     }
 
                     $scope.reset(false);
-                    $scope.showMessage(false, 'Submited successfully.', null, true, function () {
+                    $scope.showMessage(false, 'inf-submitted', null, true, function () {
                         window.close();
                     });
                 })
                 .catch(function (error) {
-                    $scope.showMessage(true, 'Failed to submit.', error, false, null);
+                    $scope.showMessage(true, 'err-submitted', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;
@@ -350,7 +353,7 @@
                     });
                 })
                 .catch(function (error) {
-                    $scope.showMessage(true, 'Failed to refresh.', error, false, null);
+                    $scope.showMessage(true, 'err-refresh', error, false, null);
                 })
                 .finally(function () {
                     $scope.__loading = false;

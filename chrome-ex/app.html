@@ -1,6 +1,8 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="UTF-8">
+
     <title>Worktile</title>
 
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
@@ -10,19 +12,23 @@
     <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular-messages.min.js"></script>
-    <script src="worktile.js"></script>
-    <script src="app.js"></script>
+
+    <script type="text/javascript" src="l10n/l10n-en-us.js"></script>
+    <script type="text/javascript" src="l10n/l10n-zh-cn.js"></script>
+    <script type="text/javascript" src="l10n/l10n.js"></script>
+    <script type="text/javascript" src="worktile.js"></script>
+    <script type="text/javascript" src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController">
 
-<div class="alert wt-alert" ng-class="message.error ? 'alert-danger' : 'alert-success'" ng-show="message">
-  <button type="button" class="close" ng-click="message = null"><span class="glyphicon glyphicon-remove"></span></button>
-  <button type="button" class="close" ng-show="message.details" ng-click="__showDetails = !__showDetails">
-    <span ng-class="__showDetails ? 'glyphicon glyphicon-zoom-out' : 'glyphicon glyphicon-zoom-in'"></span>
-  </button>
-  <p>{{message.title}}</p>
-  <pre class="wt-pre" ng-show="message.details && __showDetails">{{message.details | json}}</pre>
-</div>
+    <div class="alert wt-alert" ng-class="message.error ? 'alert-danger' : 'alert-success'" ng-show="message">
+      <button type="button" class="close" ng-click="message = null"><span class="glyphicon glyphicon-remove"></span></button>
+      <button type="button" class="close" ng-show="message.details" ng-click="__showDetails = !__showDetails">
+        <span ng-class="__showDetails ? 'glyphicon glyphicon-zoom-out' : 'glyphicon glyphicon-zoom-in'"></span>
+      </button>
+      <p>{{message.title}}</p>
+      <pre class="wt-pre" ng-show="message.details && __showDetails">{{message.details | json}}</pre>
+    </div>
 
     <div class="cover" ng-show="__loading">
       <div class="outer">
@@ -33,6 +39,7 @@
         </div>
       </div>
     </div>
+
     <div class="panel panel-info wt-container">
       <div class="panel-heading wt-header">
         <div class="options-area pull-right">
@@ -61,27 +68,27 @@
         </div>
 
         <form novalidate name="targetForm">
-          <div class="input-group" title="Name">
+          <div class="input-group" title="{{'target-name' | l10n}}">
             <span class="input-group-addon"><span class="glyphicon glyphicon-fire"></span></span>
-            <input required type="text" class="form-control" id="title" name="title" placeholder="Name" ng-model="target.title">
+            <input required type="text" class="form-control" id="title" name="title" placeholder="{{'target-name' | l10n}}" ng-model="target.title">
             <span class="input-group-btn">
-              <button class="btn btn-primary" type="button" ng-click="copy()" title="Insert page title and URL">
+              <button class="btn btn-primary" type="button" ng-click="copy()" title="{{'copy' | l10n}}">
                 <span class="glyphicon glyphicon-copy"></span>
               </button>
             </span>
           </div>
-          <div class="input-group" title="Description" ng-show="mode === modes.advanced">
+          <div class="input-group" title="{{'target-content' | l10n}}" ng-show="mode === modes.advanced">
             <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-edit"></span></span>
-            <textarea class="form-control" rows="3" name="content" placeholder="Description" ng-model="target.content"></textarea>
+            <textarea class="form-control" rows="3" name="content" placeholder="{{'target-content' | l10n}}" ng-model="target.content"></textarea>
           </div>
           <fieldset class="project-selector" ng-disabled="!me.uid">
-            <div class="input-group" title="Project">
+            <div class="input-group" title="{{'target-pid' | l10n}}">
               <span class="input-group-addon"><span class="glyphicon glyphicon-inbox"></span></span>
               <select required class="form-control" ng-model="target.pid" name="pid">
                 <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
               </select>
             </div>
-            <div class="input-group" title="List" ng-show="type === types.task">
+            <div class="input-group" title="{{'target-eid' | l10n}}" ng-show="type === types.task">
               <span class="input-group-addon"><span class="glyphicon glyphicon-th-list"></span></span>
               <select required class="form-control" ng-model="target.eid" name="eid">
                 <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}}</option>
@@ -89,7 +96,7 @@
             </div>
             <div class="row" ng-show="mode === modes.advanced">
               <div class="col-xs-6" style="padding-right: 5px;">
-                <div class="input-group" title="Assignee(s)">
+                <div class="input-group" title="{{'target-assignees' | l10n}}">
                   <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-user"></span></span>
                   <select multiple class="form-control" ng-model="target.assignees" name="assignees">
                     <option ng-repeat="member in projects[target.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
@@ -97,7 +104,7 @@
                 </div>
               </div>
               <div class="col-xs-6" style="padding-left: 5px;">
-                <div class="input-group" title="Follower(s)">
+                <div class="input-group" title="{{'target-followers' | l10n}}">
                   <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-thumbs-up"></span></span>
                   <select multiple class="form-control" ng-model="target.followers" name="followers">
                     <option ng-repeat="member in projects[target.pid].members" value="{{member.uid}}">{{member.display_name}}</option>
@@ -107,30 +114,36 @@
             </div>
           </fieldset>
         </form>
+
         <div class="btn-group btn-group-sm toolbar" role="group">
           <button type="button" class="btn btn-default" ng-click="switchMode($event)">
-            <span ng-class="mode === modes.advanced ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'" aria-hidden="true"></span> Advanced Mode
+            <span ng-class="mode === modes.advanced ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'" aria-hidden="true"></span> {{'adv-mode' | l10n}}
           </button>
+<div class="btn-group dropup">
+  <button type="button" class="btn btn-default btn-sm">{{}}</button>
+  <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <span class="caret"></span>
+    <span class="sr-only">Toggle Dropdown</span>
+  </button>
+  <ul class="dropdown-menu">
+    <li><a href="#">Action</a></li>
+    <li><a href="#">Another action</a></li>
+    <li><a href="#">Something else here</a></li>
+  </ul>
+</div>
         </div>
         <div class="btn-group btn-group-sm pull-right toolbar" role="group">
           <button type="button" class="btn btn-primary" ng-click="me.uid ? logout() : login()">
-            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span> {{me.uid ? 'Logout' : 'Login'}}
+            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span> {{(me.uid ? 'logout' : 'login') | l10n}}
           </button>
           <button ng-show="me.uid" type="button" class="btn btn-primary" ng-click="refresh()">
-            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> Refresh
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> {{'refresh' | l10n}}
           </button>
           <button ng-disabled="!me.uid || !target.pid" type="button" class="btn btn-primary" ng-click="submit()">
-            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> Submit
+            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> {{'submit' | l10n}}
           </button>
         </div>
       </div>
     </div>
-<!--
-    <pre>{{me | json}}</pre>
-
-    <pre>{{post | json}}</pre>
-
-    <pre>{{projects | json}}</pre>
--->
   </body>
 </html>

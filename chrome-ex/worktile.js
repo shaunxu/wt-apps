@@ -47,6 +47,15 @@
             setCurrentUser: function (me) {
                 _storage.set('me', me);
             },
+            locale: function (locale) {
+                if (locale) {
+                    _storage.set('l', locale);
+                }
+                else {
+                    locale = _storage.get('l');
+                }
+                return locale;
+            },
             mode: function (mode) {
                 if (mode) {
                     _storage.set('m', mode);

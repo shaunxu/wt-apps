@@ -97,7 +97,12 @@
                             }
                         }
                     }
-                    return callback();
+                    $timeout(function () {
+                        if ($scope.me && $scope.projects[$scope.target.pid].members.hasOwnProperty($scope.me.uid)) {
+                            $scope.target.followers = [$scope.me.uid];
+                        }
+                        return callback();
+                    });
                 });
             });
         };
@@ -153,13 +158,23 @@
 
                     $q.all([membersPromise, entriesPromise])
                         .then(function () {
-                            var eids = Object.keys(project.entries);
-                            if (eids.length > 0) {
-                                $scope.target.eid = eids[0];
-                            }
-                            else {
-                                $scope.target.eid = null;
-                            }
+                            // $timeout(function () {
+                                var eids = Object.keys(project.entries);
+                                if (eids.length > 0) {
+                                    $scope.target.eid = eids[0];
+                                }
+                                else {
+                                    $scope.target.eid = null;
+                                }
+                                
+
+                                // $timeout(function () {
+                                    if ($scope.me && project.members.hasOwnProperty($scope.me.uid)) {
+                                        $scope.target.followers = [$scope.me.uid];
+                                        // $scope.target.followers.push[$scope.me.uid];
+                                    }
+                                // });
+                            // });
                             $worktile.projects($scope.projects);
                         })
                         .catch(function (error) {

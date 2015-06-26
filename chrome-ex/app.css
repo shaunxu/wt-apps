@@ -1,7 +1,6 @@
 body, section {
-    width: 400px;
-    height: 400px;
-    /*overflow-x: hidden;*/
+  width: 400px;
+  /*overflow-x: hidden;*/
 }
 
 /* Basic style tweaks */
@@ -18,56 +17,56 @@ section { padding: 5px;}
 }
 
 .wt-header {
-      border-bottom: 1px none #c0ccd7;
-      background: -webkit-gradient(linear, left top, left bottom, from(#d9edf7), color-stop(100%, #fff));
+  border-bottom: 1px none #c0ccd7;
+  background: -webkit-gradient(linear, left top, left bottom, from(#d9edf7), color-stop(100%, #fff));
 }
 
 .wt-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 
 .clear {
-    clear:both;
+  clear:both;
 }
 
 .wt-container {
-    border: 1px none #c0ccd7;
+  border: 1px none #c0ccd7;
 }
 
 .cover {
-    z-index: 1099;
-    left: 0;
-    top: 0;
-    overflow: hidden;
-    position: absolute;
-    outline: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, .75);
+  z-index: 1099;
+  left: 0;
+  top: 0;
+  overflow: hidden;
+  position: absolute;
+  outline: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, .75);
 }
 
 .outer {
-    display: table;
-    position: absolute;
-    height: 100%;
-    width: 100%;
+  display: table;
+  position: absolute;
+  height: 100%;
+  width: 100%;
 }
 
 .middle {
-    display: table-cell;
-    vertical-align: middle;
+  display: table-cell;
+  vertical-align: middle;
 }
 
 .inner {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .glyphicon-2x {
-    font-size: 2em;
+  font-size: 2em;
 }
 
 .glyphicon-3x {
@@ -114,4 +113,10 @@ section { padding: 5px;}
 
 .toolbar {
   margin-top: 5px;
+}
+
+.wt-circel-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }

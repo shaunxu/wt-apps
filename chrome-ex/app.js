@@ -23,6 +23,12 @@
         $scope.__refreshing = false;
         $scope.name = $worktile.name;
 
+        $scope.modes = {
+            express: 0,
+            advanced: 1
+        };
+        $scope.mode = $scope.modes.express;
+
         $scope.types = {
             task: 1,
             appointment: 2,
@@ -126,6 +132,7 @@
 
             $scope.__loading = true;
             $scope.me = $worktile.getCurrentUser();
+            $scope.mode = $worktile.mode() || $scope.modes.express;
             loadProjects(function (error, projects) {
                 if (error) {
                     _showError(error);
@@ -191,6 +198,19 @@
             _onProjectChanged(pid, oldValue);
         });
 
+        $scope.switchMode = function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if ($scope.mode === $scope.modes.advanced) {
+                $scope.mode = $scope.modes.express;
+            }
+            else {
+                $scope.mode = $scope.modes.advanced;
+            }
+            $worktile.mode($scope.mode);
+        };
+
         $scope.copy = function () {
             chrome.tabs.query({
                 active: true,
@@ -201,8 +221,10 @@
                     $scope.$apply(function () {
                         $scope.target.title = $scope.target.title || '';
                         $scope.target.title += ($scope.target.title.length > 0 ? ' ' : '') + tab.title;
-                        $scope.target.content = $scope.target.content || '';
-                        $scope.target.content += ($scope.target.content.length > 0 ? ' ' : '') + tab.url;
+                        if ($scope.mode === $scope.modes.advanced) {
+                            $scope.target.content = $scope.target.content || '';
+                            $scope.target.content += ($scope.target.content.length > 0 ? ' ' : '') + tab.url;
+                        }
                     });
                 }
             });

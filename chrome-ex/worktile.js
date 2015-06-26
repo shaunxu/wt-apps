@@ -47,6 +47,15 @@
             setCurrentUser: function (me) {
                 _storage.set('me', me);
             },
+            mode: function (mode) {
+                if (mode) {
+                    _storage.set('m', mode);
+                }
+                else {
+                    mode = _storage.get('m');
+                }
+                return mode;
+            },
             projects: function (projects) {
                 if (projects) {
                     _storage.set('pjs', projects);

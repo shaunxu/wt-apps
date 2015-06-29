@@ -230,8 +230,10 @@
         });
 
         $scope.switchMode = function (e) {
-            e.preventDefault();
-            e.stopPropagation();
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
 
             if ($scope.mode === $scope.modes.advanced) {
                 $scope.mode = $scope.modes.express;
@@ -260,6 +262,51 @@
                 }
             });
         };
+
+        $scope.clickMember = function (e, uid, target) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            var pos = target.indexOf(uid);
+            if (pos >= 0) {
+                target.splice(pos, 1);
+            }
+            else {
+                target.push(uid);
+            }
+        };
+
+        // $scope.clickAssignee = function (e, uid) {
+        //     if (e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //     }
+
+        //     var pos = $scope.target.assignees.indexOf(uid);
+        //     if (pos >= 0) {
+        //         $scope.target.assignees.splice(pos, 1);
+        //     }
+        //     else {
+        //         $scope.target.assignees.push(uid);
+        //     }
+        // };
+
+        // $scope.clickFollowers = function (e, uid) {
+        //     if (e) {
+        //         e.preventDefault();
+        //         e.stopPropagation();
+        //     }
+
+        //     var pos = $scope.target.followers.indexOf(uid);
+        //     if (pos >= 0) {
+        //         $scope.target.followers.splice(pos, 1);
+        //     }
+        //     else {
+        //         $scope.target.followers.push(uid);
+        //     }
+        // };
 
         $scope.login = function () {
             $scope.__loading = true;

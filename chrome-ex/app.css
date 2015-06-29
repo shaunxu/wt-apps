@@ -27,6 +27,12 @@ section { padding: 5px;}
   border-radius: 50%;
 }
 
+.wt-avatar-sm {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
 .clear {
   clear:both;
 }
@@ -130,4 +136,22 @@ section { padding: 5px;}
 .wt-pre {
   font-size: 0.8em;
   margin-top: 5px;
+}
+
+.wt-list {
+  margin-bottom: 0;
+  height: 97px;
+  overflow-y: auto;
+}
+
+.wt-list-item {
+  padding: 5px 5px 5px 10px;
+}
+
+.wt-list-item:first-child {
+  border-top-left-radius: 0;
+}
+
+.wt-list-item:last-child {
+  border-bottom-left-radius: 0;
 }

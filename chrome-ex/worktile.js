@@ -135,7 +135,8 @@
                             if (member.status === 1) {
                                 project.members[member.uid] = {
                                     uid: member.uid,
-                                    display_name: member.display_name
+                                    display_name: member.display_name,
+                                    avatar: member.avatar
                                 };
                             }
                         });

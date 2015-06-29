@@ -28,7 +28,8 @@
                 'err-pid-required': 'Must choose a project.',
                 'inf-submitted': 'Submited successfully.',
                 'err-submitted': 'Submited failed.',
-                'err-refresh': 'Failed to refresh.'
+                'err-refresh': 'Failed to refresh.',
+                'signature': 'Sent from my Worktile Chrome Extension'
             }
         });
     });

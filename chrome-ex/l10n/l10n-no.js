@@ -26,9 +26,10 @@
                 'err-logout': 'Logg mislyktes.',
                 'err-name-required': 'Navn er påkrevd.',
                 'err-pid-required': 'Må velge et prosjekt.',
-                'inf-submitted': 'submited hell.',
+                'inf-submitted': 'Submited hell.',
                 'err-submitted': 'Submited mislyktes.',
-                'err-refresh': 'Kunne ikke oppdatere.'
+                'err-refresh': 'Kunne ikke oppdatere.',
+                'signature': 'Sendt fra min Worktile Chrome Extension'
             }
         });
     });

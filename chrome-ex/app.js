@@ -307,6 +307,9 @@
                 $scope.showMessage(true, 'err-pid-required', null, false, null);
                 return;
             }
+            if ($scope.target.content) {
+                $scope.target.content += '\n\n' + $l10n.get('signature');
+            }
 
             $scope.__loading = true;
             var promise = {};

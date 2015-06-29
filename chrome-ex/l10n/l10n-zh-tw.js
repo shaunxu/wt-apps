@@ -28,7 +28,8 @@
                 'err-pid-required': '請選擇一個項目。',
                 'inf-submitted': '提交成功。',
                 'err-submitted': '提交失敗。',
-                'err-refresh': '刷新失敗。'
+                'err-refresh': '刷新失敗。',
+                'signature': '發自我的Worktile Chrome Extension'
             }
         });
     });

@@ -136,7 +136,7 @@
                                 project.members[member.uid] = {
                                     uid: member.uid,
                                     display_name: member.display_name,
-                                    avatar: member.avatar
+                                    avatar: (member.avatar && member.avatar.length > 0 ? member.avatar : 'img/icons/ic_face_black_48dp_1x.png')
                                 };
                             }
                         });

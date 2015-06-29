@@ -19,6 +19,9 @@
                 }
                 return null;
             },
+            getLocale: function (name) {
+                return locales[name];
+            },
             all: function () {
                 return locales;
             }

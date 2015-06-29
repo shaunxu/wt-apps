@@ -15,6 +15,8 @@
 
     <script type="text/javascript" src="l10n/l10n-en-us.js"></script>
     <script type="text/javascript" src="l10n/l10n-zh-cn.js"></script>
+    <script type="text/javascript" src="l10n/l10n-zh-tw.js"></script>
+    <script type="text/javascript" src="l10n/l10n-no.js"></script>
     <script type="text/javascript" src="l10n/l10n.js"></script>
     <script type="text/javascript" src="worktile.js"></script>
     <script type="text/javascript" src="app.js"></script>
@@ -119,31 +121,30 @@
           <button type="button" class="btn btn-default" ng-click="switchMode($event)">
             <span ng-class="mode === modes.advanced ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'" aria-hidden="true"></span> {{'adv-mode' | l10n}}
           </button>
-<div class="btn-group dropup">
-  <button type="button" class="btn btn-default btn-sm">{{}}</button>
-  <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    <span class="caret"></span>
-    <span class="sr-only">Toggle Dropdown</span>
-  </button>
-  <ul class="dropdown-menu">
-    <li><a href="#">Action</a></li>
-    <li><a href="#">Another action</a></li>
-    <li><a href="#">Something else here</a></li>
-  </ul>
-</div>
+          <div class="btn-group dropup">
+            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <img ng-src="{{getLocale().flag}}" alt={{getLocale().name}}> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li ng-repeat="(key, locale) in locales" ng-click="setLocale(key)">
+                <a href="#"><img ng-src="{{locale.flag}}" alt={{locale.name}}> {{locale.name}}</a>
+              </li>
+            </ul>
+          </div>
         </div>
         <div class="btn-group btn-group-sm pull-right toolbar" role="group">
-          <button type="button" class="btn btn-primary" ng-click="me.uid ? logout() : login()">
-            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span> {{(me.uid ? 'logout' : 'login') | l10n}}
+          <button type="button" class="btn btn-primary" ng-click="me.uid ? logout() : login()" title="{{(me.uid ? 'logout' : 'login') | l10n}}">
+            <span ng-class="me.uid ? 'glyphicon glyphicon-log-out' : 'glyphicon glyphicon-log-in'" aria-hidden="true"></span>
           </button>
-          <button ng-show="me.uid" type="button" class="btn btn-primary" ng-click="refresh()">
-            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span> {{'refresh' | l10n}}
+          <button ng-show="me.uid" type="button" class="btn btn-primary" ng-click="refresh()" title="{{'refresh' | l10n}}">
+            <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>
           </button>
-          <button ng-disabled="!me.uid || !target.pid" type="button" class="btn btn-primary" ng-click="submit()">
-            <span class="glyphicon glyphicon-send" aria-hidden="true"></span> {{'submit' | l10n}}
+          <button ng-disabled="!me.uid || !target.pid" type="button" class="btn btn-primary" ng-click="submit()" title="{{'submit' | l10n}}">
+            <span class="glyphicon glyphicon-send" aria-hidden="true"></span>
           </button>
         </div>
       </div>
     </div>
+
   </body>
 </html>

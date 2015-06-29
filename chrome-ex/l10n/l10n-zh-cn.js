@@ -6,7 +6,7 @@
     locale.run(function ($l10n) {
         $l10n.set('zh-cn', {
             name: '简体中文',
-            flag: null,
+            flag: 'img/flags/cn.png',
             items: {
                 'target-name': '名称',
                 'target-content': '描述',

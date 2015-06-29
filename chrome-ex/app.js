@@ -4,14 +4,31 @@
     var client_id = '54599295762c424b8aced6e7ee891a47';
     var return_url = chrome.identity.getRedirectURL();
 
-    var app = angular.module('Worktile', ['ngMessages', 'ngWorktile', 'l10n', 'l10n-en-us', 'l10n-zh-cn']);
+    var app = angular.module('Worktile', [
+        'ngMessages', 
+        'ngWorktile', 
+        'l10n', 'l10n-en-us', 'l10n-zh-cn', 'l10n-zh-tw', 'l10n-no']);
 
     app.config(function ($compileProvider) {
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
     });
 
-    app.controller('MasterController', function ($scope, $http, $q, $timeout, $worktile, $l10n) {
-        $l10n.locale = 'zh-cn';
+    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $l10n) {
+        $l10n.locale = $worktile.locale() || 'zh-cn';
+        $scope.locales = $l10n.all();
+
+        $scope.getLocale = function () {
+            var locale = $l10n.getLocale($l10n.locale);
+            return {
+                name: locale.name || 'N/A',
+                flag: locale.flag
+            }
+        };
+        $scope.setLocale = function (name) {
+            $worktile.locale(name);
+            $l10n.locale = name;
+            $window.location.reload();
+        };
 
         $scope.__loading = false;
         $scope.__refreshing = false;
@@ -327,7 +344,7 @@
 
                     $scope.reset(false);
                     $scope.showMessage(false, 'inf-submitted', null, true, function () {
-                        window.close();
+                        $window.close();
                     });
                 })
                 .catch(function (error) {

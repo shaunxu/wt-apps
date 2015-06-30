@@ -29,7 +29,11 @@
                 'inf-submitted': 'Submited successfully.',
                 'err-submitted': 'Submited failed.',
                 'err-refresh': 'Failed to refresh.',
-                'signature': 'Sent from my Worktile Chrome Extension'
+                'signature': 'Sent from my Worktile Chrome Extension',
+                'opt-caption': 'Chrome Extension Options',
+                'signature-label': 'Signature',
+                'language-label': 'Language',
+                'save': 'Save'
             }
         });
     });

@@ -29,7 +29,11 @@
                 'inf-submitted': '提交成功。',
                 'err-submitted': '提交失败。',
                 'err-refresh': '刷新失败。',
-                'signature': '发自我的Worktile Chrome Extension'
+                'signature': '发自我的Worktile Chrome Extension',
+                'opt-caption': '配置谷歌浏览器插件',
+                'signature-label': '签名',
+                'language-label': '语言',
+                'save': '保存'
             }
         });
     });

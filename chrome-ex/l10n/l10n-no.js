@@ -29,7 +29,11 @@
                 'inf-submitted': 'Submited hell.',
                 'err-submitted': 'Submited mislyktes.',
                 'err-refresh': 'Kunne ikke oppdatere.',
-                'signature': 'Sendt fra min Worktile Chrome Extension'
+                'signature': 'Sendt fra min Worktile Chrome Extension',
+                'opt-caption': 'Chrome Opsjoner',
+                'signature-label': 'Signatur',
+                'language-label': 'Språk',
+                'save': 'Lagre'
             }
         });
     });

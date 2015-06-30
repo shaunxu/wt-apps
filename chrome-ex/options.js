@@ -10,9 +10,12 @@
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
     });
 
-    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $clientId, $redirectURL, $l10n) {
-        $l10n.locale = $worktile.locale() || 'zh-cn';
+    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $l10n) {
         $scope.locales = $l10n.all();
+        $scope.options = $worktile.options() || {};
+        $scope.options.locale = sessionStorage.locale || $scope.options.locale || 'zh-cn';
+        $l10n.locale = $scope.options.locale;
+        $scope.options.signature = $scope.options.signature || $l10n.get('signature');
 
         $scope.getLocale = function () {
             var locale = $l10n.getLocale($l10n.locale);
@@ -22,15 +25,14 @@
             }
         };
         $scope.setLocale = function (name) {
-            $worktile.locale(name);
-            $l10n.locale = name;
+            sessionStorage.locale = name;
             $window.location.reload();
         };
 
         $scope.name = $worktile.name;
         $scope.me = $worktile.getCurrentUser();
+        $scope.logInUrl = $worktile.getAuthorizeUrl(chrome.extension.getURL('options.html'));
 
-        $scope.logInUrl = 'https://open.worktile.com/oauth2/authorize?client_id=' + $clientId + '&redirect_uri=' + chrome.extension.getURL('options.html') + '&display=web';
         var _queryString = function (url, name) {
             name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
             var regex = new RegExp('[\\?&]' + name + '=([^&#]*)'),
@@ -39,22 +41,16 @@
         };
         var code = _queryString($window.location, 'code');
         if (code && code.length > 0) {
-            $http({
-                method: 'POST',
-                url: 'https://api.worktile.com/oauth2/access_token',
-                data: {
-                    client_id: $clientId,
-                    code: code
-                }
-            }).then(function (response) {
-                $worktile.setToken(response.data);
-                return $worktile.getCurrentUserPromise()
-            }).then(function (user) {
-                $scope.me = $worktile.getCurrentUser();
-
-            }).catch(function (error) {
-                alert(angular.toJson(error, true));
-            });
+            $worktile.getAccessTokenPromise(code)
+                .then(function (response) {
+                    return $worktile.getCurrentUserPromise()
+                })
+                .then(function (user) {
+                    $scope.me = $worktile.getCurrentUser();
+                })
+                .catch(function (error) {
+                    alert(angular.toJson(error, true));
+                });
         }
 
         $scope.logout = function (e) {
@@ -94,6 +90,16 @@
                         alert(angular.toJson(error, true));
                     });
             });
+        };
+
+        $scope.save = function () {
+            if ($scope.options.signature === $l10n.get('signature') || !$scope.options.signature) {
+                delete $scope.options.signature;
+            }
+            $worktile.options($scope.options);
+
+            delete sessionStorage.locale;
+            $window.location.reload();
         };
     });
 

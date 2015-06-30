@@ -2,10 +2,8 @@
     var worktile = angular.module('ngWorktile', []);
 
     worktile.value('$clientId', '54599295762c424b8aced6e7ee891a47');
-    worktile.value('$redirectURL', chrome.identity.getRedirectURL());
-    worktile.value('$optionsURL', chrome.extension.getURL('options.html'));
 
-    worktile.factory('$worktile', function ($http, $interval, $q, $clientId, $redirectURL) {
+    worktile.factory('$worktile', function ($http, $interval, $q, $clientId) {
         var _storage = {
             get: function (key) {
                 var raw = localStorage[key];
@@ -59,7 +57,7 @@
                 else {
                     options = _storage.get('options');
                 }
-                return token;
+                return options;
             },
             token: function (token) {
                 if (token) {
@@ -144,10 +142,8 @@
             isLoggedIn: function () {
                 var self = this;
                 var token = self.getToken();
-                var me = self.getCurrentUser();
                 return ( 
-                    token && token.access_token && token.expires_in && token.refresh_token &&
-                    me && me.uid
+                    token && token.access_token && token.expires_in && token.refresh_token
                 );
             },
             getProjectMembersPromise: function (project) {
@@ -252,44 +248,25 @@
                     });
                 });
             },
-            logInPromise: function () {
+            getAuthorizeUrl: function (redirectUrl) {
+                return 'https://open.worktile.com/oauth2/authorize?client_id=' + $clientId + '&redirect_uri=' + redirectUrl + '&display=mobile';
+            },
+            getAccessTokenPromise: function (code) {
                 var self = this;
                 return $q(function (resolve, reject) {
-                    try
-                    {
-                        chrome.identity.launchWebAuthFlow({
-                            url: 'https://open.worktile.com/oauth2/authorize?client_id=' + $clientId + '&redirect_uri=' + $redirectURL + '&display=mobile',
-                            interactive: true
-                        }, function (responseUrl) {
-                            var code = (function (url, name) {
-                                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-                                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-                                    results = regex.exec(url);
-                                return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-                            })(responseUrl, 'code');
-                            if (code) {
-                                $http({
-                                    method: 'POST',
-                                    url: 'https://api.worktile.com/oauth2/access_token',
-                                    data: {
-                                        client_id: $clientId,
-                                        code: code
-                                    }
-                                }).then(function (response) {
-                                    self.setToken(response.data);
-                                    return resolve(response.data);
-                                }, function (response) {
-                                    return reject(response);
-                                });
-                            }
-                            else {
-                                return reject('Invalid code from Worktile Open API. Response URL = [' + responseUrl + '].');
-                            }
-                        });
-                    }
-                    catch (ex) {
-                        return reject(ex);
-                    }
+                    $http({
+                        method: 'POST',
+                        url: 'https://api.worktile.com/oauth2/access_token',
+                        data: {
+                            client_id: $clientId,
+                            code: code
+                        }
+                    }).then(function (response, status) {
+                        self.setToken(response.data);
+                        return resolve(response.data);
+                    }, function (response) {
+                        return reject(response);
+                    });
                 });
             },
             createPostPromise: function (post) {
@@ -435,27 +412,6 @@
                     }
                     else {
                         return reject('Invalid task value. ' + angular.toJson(task));
-                    }
-                });
-            },
-            logoutPromise: function () {
-                var self = this;
-                return $q(function (resolve, reject) {
-                    _storage.clear();
-                    try
-                    {
-                        chrome.identity.launchWebAuthFlow({
-                            url: 'https://worktile.com/api/user/signout',
-                            interactive: true
-                        }, function (responseUrl) {
-                            if (chrome.runtime.lastError) {
-                                alert(angular.toJson(chrome.runtime.lastError, true));
-                            }
-                            return resolve();
-                        });
-                    }
-                    catch (ex) {
-                        return reject(ex);
                     }
                 });
             },

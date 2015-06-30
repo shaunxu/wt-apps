@@ -1,9 +1,6 @@
 (function () {
     'use strict';
 
-    var client_id = '54599295762c424b8aced6e7ee891a47';
-    var return_url = chrome.identity.getRedirectURL();
-
     var app = angular.module('Worktile', [
         'ngMessages', 
         'ngWorktile', 
@@ -13,22 +10,9 @@
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
     });
 
-    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $optionsURL, $l10n) {
-        $l10n.locale = $worktile.locale() || 'zh-cn';
-        $scope.locales = $l10n.all();
-
-        $scope.getLocale = function () {
-            var locale = $l10n.getLocale($l10n.locale);
-            return {
-                name: locale.name || 'N/A',
-                flag: locale.flag
-            }
-        };
-        $scope.setLocale = function (name) {
-            $worktile.locale(name);
-            $l10n.locale = name;
-            $window.location.reload();
-        };
+    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $l10n) {
+        var options = angular.extend({}, { locale: 'zh-cn', signature: '' }, $worktile.options());
+        $l10n.locale = options.locale;
 
         $scope.__loading = false;
         $scope.__refreshing = false;
@@ -204,15 +188,9 @@
                                 else {
                                     $scope.target.eid = null;
                                 }
-                                
-
-                                // $timeout(function () {
-                                    if ($scope.me && project.members.hasOwnProperty($scope.me.uid)) {
-                                        $scope.target.followers = [$scope.me.uid];
-                                        // $scope.target.followers.push[$scope.me.uid];
-                                    }
-                                // });
-                            // });
+                                if ($scope.me && project.members.hasOwnProperty($scope.me.uid)) {
+                                    $scope.target.followers = [$scope.me.uid];
+                                }
                             $worktile.projects($scope.projects);
                         })
                         .catch(function (error) {
@@ -278,82 +256,20 @@
             }
         };
 
-        // $scope.clickAssignee = function (e, uid) {
-        //     if (e) {
-        //         e.preventDefault();
-        //         e.stopPropagation();
-        //     }
-
-        //     var pos = $scope.target.assignees.indexOf(uid);
-        //     if (pos >= 0) {
-        //         $scope.target.assignees.splice(pos, 1);
-        //     }
-        //     else {
-        //         $scope.target.assignees.push(uid);
-        //     }
-        // };
-
-        // $scope.clickFollowers = function (e, uid) {
-        //     if (e) {
-        //         e.preventDefault();
-        //         e.stopPropagation();
-        //     }
-
-        //     var pos = $scope.target.followers.indexOf(uid);
-        //     if (pos >= 0) {
-        //         $scope.target.followers.splice(pos, 1);
-        //     }
-        //     else {
-        //         $scope.target.followers.push(uid);
-        //     }
-        // };
-
         $scope.login = function () {
             chrome.tabs.create({
-                url: $optionsURL,
+                url: chrome.extension.getURL('options.html'),
                 active: true,
                 selected: true
             }, angular.noop);
-
-            // $scope.__loading = true;
-            // $worktile.logInPromise()
-            //     .then(function () {
-            //         return $worktile.getCurrentUserPromise();
-            //     })
-            //     .then(function (user) {
-            //         $scope.me = user;
-            //         return $worktile.getProjectsPromise();
-            //     })
-            //     .then(function (projects) {
-            //         _reloadProjects(projects, $worktile.pid(), $worktile.eid(), function () {
-            //             $scope.__loading = false;
-            //         });
-            //     })
-            //     .catch(function (error) {
-            //         $scope.showMessage(true, 'err-login', error, false, null);
-            //     })
-            //     .finally(function () {
-            //         $scope.__loading = false;
-            //     });
         };
 
         $scope.logout = function () {
             chrome.tabs.create({
-                url: $optionsURL,
+                url: chrome.extension.getURL('options.html'),
                 active: true,
                 selected: true
             }, angular.noop);
-            // $scope.__loading = true;
-            // $worktile.logoutPromise()
-            //     .then(function () {
-            //         $scope.reset(true);
-            //     })
-            //     .catch(function (error) {
-            //         $scope.showMessage(true, 'err-logout', error, false, null);
-            //     })
-            //     .finally(function () {
-            //         $scope.__loading = false;
-            //     });
         };
 
         $scope.submit = function () {

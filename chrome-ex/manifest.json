@@ -16,8 +16,7 @@
     "*://*.worktile.com/*"
   ],
   "web_accessible_resources": [
-    "options.html",
-    "app.html"
+    "options.html"
   ],
   "options_page": "options.html"
 }

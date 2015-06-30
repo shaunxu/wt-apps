@@ -13,7 +13,7 @@
         $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|chrome-extension):/);
     });
 
-    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $l10n) {
+    app.controller('MasterController', function ($scope, $http, $q, $timeout, $window, $worktile, $optionsURL, $l10n) {
         $l10n.locale = $worktile.locale() || 'zh-cn';
         $scope.locales = $l10n.all();
 
@@ -309,40 +309,51 @@
         // };
 
         $scope.login = function () {
-            $scope.__loading = true;
-            $worktile.logInPromise()
-                .then(function () {
-                    return $worktile.getCurrentUserPromise();
-                })
-                .then(function (user) {
-                    $scope.me = user;
-                    return $worktile.getProjectsPromise();
-                })
-                .then(function (projects) {
-                    _reloadProjects(projects, $worktile.pid(), $worktile.eid(), function () {
-                        $scope.__loading = false;
-                    });
-                })
-                .catch(function (error) {
-                    $scope.showMessage(true, 'err-login', error, false, null);
-                })
-                .finally(function () {
-                    $scope.__loading = false;
-                });
+            chrome.tabs.create({
+                url: $optionsURL,
+                active: true,
+                selected: true
+            }, angular.noop);
+
+            // $scope.__loading = true;
+            // $worktile.logInPromise()
+            //     .then(function () {
+            //         return $worktile.getCurrentUserPromise();
+            //     })
+            //     .then(function (user) {
+            //         $scope.me = user;
+            //         return $worktile.getProjectsPromise();
+            //     })
+            //     .then(function (projects) {
+            //         _reloadProjects(projects, $worktile.pid(), $worktile.eid(), function () {
+            //             $scope.__loading = false;
+            //         });
+            //     })
+            //     .catch(function (error) {
+            //         $scope.showMessage(true, 'err-login', error, false, null);
+            //     })
+            //     .finally(function () {
+            //         $scope.__loading = false;
+            //     });
         };
 
         $scope.logout = function () {
-            $scope.__loading = true;
-            $worktile.logoutPromise()
-                .then(function () {
-                    $scope.reset(true);
-                })
-                .catch(function (error) {
-                    $scope.showMessage(true, 'err-logout', error, false, null);
-                })
-                .finally(function () {
-                    $scope.__loading = false;
-                });
+            chrome.tabs.create({
+                url: $optionsURL,
+                active: true,
+                selected: true
+            }, angular.noop);
+            // $scope.__loading = true;
+            // $worktile.logoutPromise()
+            //     .then(function () {
+            //         $scope.reset(true);
+            //     })
+            //     .catch(function (error) {
+            //         $scope.showMessage(true, 'err-logout', error, false, null);
+            //     })
+            //     .finally(function () {
+            //         $scope.__loading = false;
+            //     });
         };
 
         $scope.submit = function () {

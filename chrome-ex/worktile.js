@@ -3,6 +3,7 @@
 
     worktile.value('$clientId', '54599295762c424b8aced6e7ee891a47');
     worktile.value('$redirectURL', chrome.identity.getRedirectURL());
+    worktile.value('$optionsURL', chrome.extension.getURL('options.html'));
 
     worktile.factory('$worktile', function ($http, $interval, $q, $clientId, $redirectURL) {
         var _storage = {
@@ -25,9 +26,6 @@
                 else {
                     delete localStorage[key];
                 }
-            },
-            clear: function () {
-                localStorage.clear();
             }
         };
 
@@ -47,30 +45,64 @@
             setCurrentUser: function (me) {
                 _storage.set('me', me);
             },
-            locale: function (locale) {
-                if (locale) {
-                    _storage.set('l', locale);
+            erase: function () {
+                _storage.set('token', null);
+                _storage.set('me', null);
+                _storage.set('projects', null);
+                _storage.set('pid', null);
+                _storage.set('eid', null);
+            },
+            options: function (options) {
+                if (options) {
+                    _storage.set('options', options);
                 }
                 else {
-                    locale = _storage.get('l');
+                    options = _storage.get('options');
+                }
+                return token;
+            },
+            token: function (token) {
+                if (token) {
+                    _storage.set('token', token);
+                }
+                else {
+                    token = _storage.get('token');
+                }
+                return token;
+            },
+            me: function (me) {
+                if (me) {
+                    _storage.set('me', me);
+                }
+                else {
+                    me = _storage.get('me');
+                }
+                return me;
+            },
+            locale: function (locale) {
+                if (locale) {
+                    _storage.set('locale', locale);
+                }
+                else {
+                    locale = _storage.get('locale');
                 }
                 return locale;
             },
             mode: function (mode) {
                 if (mode) {
-                    _storage.set('m', mode);
+                    _storage.set('mode', mode);
                 }
                 else {
-                    mode = _storage.get('m');
+                    mode = _storage.get('mode');
                 }
                 return mode;
             },
             projects: function (projects) {
                 if (projects) {
-                    _storage.set('pjs', projects);
+                    _storage.set('projects', projects);
                 }
                 else {
-                    projects = _storage.get('pjs');
+                    projects = _storage.get('projects');
                 }
                 return projects;
             },

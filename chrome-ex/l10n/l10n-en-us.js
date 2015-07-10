@@ -33,7 +33,9 @@
                 'opt-caption': 'Chrome Extension Options',
                 'signature-label': 'Signature',
                 'language-label': 'Language',
-                'save': 'Save'
+                'save': 'Save',
+                'interval-label': 'Polling Interval',
+                'interval-unit': 'Minute(s)'
             }
         });
     });

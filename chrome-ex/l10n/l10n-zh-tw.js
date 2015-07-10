@@ -33,7 +33,9 @@
                 'opt-caption': '配置谷歌瀏覽器插件',
                 'signature-label': '簽名',
                 'language-label': '語言',
-                'save': '保存'
+                'save': '保存',
+                'interval-label': '刷新周期',
+                'interval-unit': '分鍾'
             }
         });
     });

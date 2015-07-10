@@ -16,6 +16,7 @@
         $scope.options.locale = sessionStorage.locale || $scope.options.locale || 'zh-cn';
         $l10n.locale = $scope.options.locale;
         $scope.options.signature = $scope.options.signature || $l10n.get('signature');
+        $scope.options.interval = $scope.options.interval || 5;
 
         $scope.getLocale = function () {
             var locale = $l10n.getLocale($l10n.locale);
@@ -27,6 +28,11 @@
         $scope.setLocale = function (name) {
             sessionStorage.locale = name;
             $window.location.reload();
+        };
+
+        $scope.intervals = [1, 5, 10, 15, 30, 60];
+        $scope.setInterval = function (interval) {
+            $scope.options.interval = interval;
         };
 
         $scope.name = $worktile.name;
@@ -43,7 +49,7 @@
         if (code && code.length > 0) {
             $worktile.getAccessTokenPromise(code)
                 .then(function (response) {
-                    return $worktile.getCurrentUserPromise()
+                    return $worktile.getCurrentUserPromise();
                 })
                 .then(function (user) {
                     $scope.me = $worktile.getCurrentUser();
@@ -98,8 +104,10 @@
             }
             $worktile.options($scope.options);
 
-            delete sessionStorage.locale;
-            $window.location.reload();
+            chrome.runtime.sendMessage(undefined, { action: 'options_saved' }, undefined, function (response) {
+                delete sessionStorage.locale;
+                $window.location.reload();
+            });
         };
     });
 

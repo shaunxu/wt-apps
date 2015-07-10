@@ -33,7 +33,9 @@
                 'opt-caption': 'Chrome Opsjoner',
                 'signature-label': 'Signatur',
                 'language-label': 'Språk',
-                'save': 'Lagre'
+                'save': 'Lagre',
+                'interval-label': 'Polling Interval',
+                'interval-unit': 'Minutt(er)'
             }
         });
     });

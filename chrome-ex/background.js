@@ -40,11 +40,11 @@
                     }
                 }
                 else {
-                    chrome.browserAction.setBadgeText({ text: '' });
+                    chrome.browserAction.setBadgeText({ text: '?' });
                 }
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                chrome.browserAction.setBadgeText({ text: '' });
+                chrome.browserAction.setBadgeText({ text: '?' });
             }
         });
     };

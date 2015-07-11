@@ -23,12 +23,24 @@
   </head>
   <body ng-app="Options" ng-controller="MasterController">
     <div class="container">
+
+      <div class="alert wt-alert" ng-class="message.error ? 'alert-danger' : 'alert-success'" ng-show="message">
+        <button type="button" class="close" ng-click="message = null"><span class="glyphicon glyphicon-remove"></span></button>
+        <button type="button" class="close" ng-show="message.details" ng-click="__showDetails = !__showDetails">
+          <span ng-class="__showDetails ? 'glyphicon glyphicon-zoom-out' : 'glyphicon glyphicon-zoom-in'"></span>
+        </button>
+        <p>{{message.title}}</p>
+        <pre class="wt-pre" ng-show="message.details && __showDetails">{{message.details | json}}</pre>
+      </div>
+
       <div class="jumbotron">
         <div class="options-area pull-right">
           <img ng-show="me.uid" ng-src="{{me.avatar}}" class="wt-avatar">
         </div>
         <h1>Worktile</h1>
+<!--
         <p class="lead">{{'opt-caption' | l10n}}</p>
+-->
         <p>
           <a class="btn btn-lg btn-success" ng-href="{{logInUrl}}" role="button" ng-hide="me.uid">
             <span class="glyphicon glyphicon-log-in"></span> {{'login' | l10n}}

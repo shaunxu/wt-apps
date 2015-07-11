@@ -27,12 +27,31 @@
         };
         $scope.setLocale = function (name) {
             sessionStorage.locale = name;
-            $window.location.reload();
+            $window.location = chrome.extension.getURL('options.html');
         };
 
         $scope.intervals = [1, 5, 10, 15, 30, 60];
         $scope.setInterval = function (interval) {
             $scope.options.interval = interval;
+        };
+
+        $scope.message = null;
+        $scope.showMessage = function (isError, title, details, autoHide, callback) {
+            callback = callback || angular.noop;
+            $scope.message = {
+                error: isError,
+                title: $l10n.get(title),
+                details: details
+            };
+            if (autoHide) {
+                $timeout(function () {
+                    $scope.message = null;
+                    return callback();
+                }, 1500);
+            }
+            else {
+                return callback();
+            }
         };
 
         $scope.name = $worktile.name;
@@ -55,7 +74,7 @@
                     $scope.me = $worktile.getCurrentUser();
                 })
                 .catch(function (error) {
-                    alert(angular.toJson(error, true));
+                    $scope.showMessage(true, 'err-login', error, false, null);
                 });
         }
 
@@ -93,7 +112,7 @@
                         $window.location = chrome.extension.getURL('options.html');
                     })
                     .catch(function (error) {
-                        alert(angular.toJson(error, true));
+                        $scope.showMessage(true, 'err-logout', error, false, null);
                     });
             });
         };
@@ -106,7 +125,7 @@
 
             chrome.runtime.sendMessage(undefined, { action: 'options_saved' }, undefined, function (response) {
                 delete sessionStorage.locale;
-                $window.location.reload();
+                $window.location = chrome.extension.getURL('options.html');
             });
         };
     });

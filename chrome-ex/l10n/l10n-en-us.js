@@ -30,7 +30,7 @@
                 'err-submitted': 'Submited failed.',
                 'err-refresh': 'Failed to refresh.',
                 'signature': 'Sent from my Worktile Chrome Extension',
-                'opt-caption': 'Chrome Extension Options',
+                'opt-caption': 'Extension for Chrome Options',
                 'signature-label': 'Signature',
                 'language-label': 'Language',
                 'save': 'Save',

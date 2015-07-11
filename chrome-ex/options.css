@@ -87,3 +87,8 @@ body {
 .ng-hide {
     display: none!important
 }
+
+.wt-alert {
+  z-index: 1999;
+  width: 100%;
+}

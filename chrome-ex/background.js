@@ -33,7 +33,13 @@
                 var json = Object.prototype.toString.call(data) === '[object String]' ? JSON.parse(data) : data;
                 if (json.code === 200) {
                     if ($.isArray(json.data) && json.data.length > 0) {
-                        chrome.browserAction.setBadgeText({ text: json.data.length + '' });
+                        var messageLength  = json.data.length;
+                        if (messageLength > 99) {
+                            chrome.browserAction.setBadgeText({ text: '99+' });
+                        }
+                        else {
+                            chrome.browserAction.setBadgeText({ text: messageLength + '' });
+                        }
                     }
                     else {
                         chrome.browserAction.setBadgeText({ text: '' });

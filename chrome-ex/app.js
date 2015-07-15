@@ -19,8 +19,8 @@
         $scope.name = $worktile.name;
 
         $scope.modes = {
-            express: 0,
-            advanced: 1
+            express: 1,
+            advanced: 2
         };
         $scope.mode = $scope.modes.express;
 
@@ -147,7 +147,6 @@
             $scope.__loading = true;
             $scope.me = $worktile.getCurrentUser();
             $scope.mode = $worktile.mode() || $scope.modes.express;
-            $l10n.locale = $worktile.locale() || 'zh-cn';
             loadProjects(function (error, projects) {
                 if (error) {
                     $scope.showMessage(true, 'err-load-prj', error, false, null);

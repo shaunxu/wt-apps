@@ -128,18 +128,6 @@
           <button type="button" class="btn btn-default" ng-click="switchMode($event)">
             <span ng-class="mode === modes.advanced ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'" aria-hidden="true"></span> {{'adv-mode' | l10n}}
           </button>
-<!--
-          <div class="btn-group dropup">
-            <button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <img ng-src="{{getLocale().flag}}" alt={{getLocale().name}}> <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-              <li ng-repeat="(key, locale) in locales" ng-click="setLocale(key)">
-                <a href="#"><img ng-src="{{locale.flag}}" alt={{locale.name}}> {{locale.name}}</a>
-              </li>
-            </ul>
-          </div>
--->
         </div>
         <div class="btn-group btn-group-sm pull-right toolbar" role="group">
           <button type="button" class="btn btn-primary" ng-click="me.uid ? logout() : login()" title="{{(me.uid ? 'logout' : 'login') | l10n}}">

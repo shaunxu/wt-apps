@@ -35,7 +35,9 @@
                 'language-label': 'Language',
                 'save': 'Save',
                 'interval-label': 'Polling Interval',
-                'interval-unit': 'Minute(s)'
+                'interval-unit': 'Minute(s)',
+                'star-projects': 'Favorites',
+                'personal-projects': 'Personal'
             }
         });
     });

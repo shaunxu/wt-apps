@@ -35,7 +35,9 @@
                 'language-label': '语言',
                 'save': '保存',
                 'interval-label': '刷新周期',
-                'interval-unit': '分钟'
+                'interval-unit': '分钟',
+                'star-projects': '常用项目',
+                'personal-projects': '个人项目'
             }
         });
     });

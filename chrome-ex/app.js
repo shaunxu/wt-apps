@@ -2,7 +2,7 @@
     'use strict';
 
     var app = angular.module('Worktile', [
-        'ngMessages', 
+        'ngMessages', 'ngSanitize', 'ui.select',
         'ngWorktile', 
         'l10n', 'l10n-en-us', 'l10n-zh-cn', 'l10n-zh-tw', 'l10n-no']);
 
@@ -60,6 +60,9 @@
                 assignees: [],
                 followers: []
             };
+            $scope.project = {
+                selected: null
+            };
             if (all) {
                 $scope.type = $scope.types.task;
                 $scope.me = {};
@@ -85,9 +88,48 @@
             return dst;
         };
 
-        var _reloadProjects = function (projects, pid, eid, callback) {
+        var _setScopeProjectsAndTeams = function (projects, teams) {
             $scope.projects = projects;
-            // var pid = $worktile.pid();
+            $scope.teams = teams;
+            $scope.projectsInArray = (function () {
+                var normal_projects = [];
+                var star_projects = [];
+                angular.forEach(projects, function (project) {
+                    normal_projects.push(project);
+                    if (project.is_star) {
+                        star_projects.push(angular.extend({}, project, { team_id: '0' }));
+                    }
+                });
+                return star_projects.concat(normal_projects);
+            })();
+        };
+
+        var _refreshScopeProjectsMembersAndEntries = function (project) {
+            angular.forEach($scope.projectsInArray, function (prj) {
+                if (prj.pid === project.pid) {
+                    prj.members = project.members;
+                    prj.entries = project.entries;
+                }
+            });
+        };
+
+        $scope.getTeamName = function (project) {
+            var teamName = null;
+            if (project.team_id === '0') {
+                teamName = $l10n.get('star-projects');
+            }
+            else if (project.team_id === '-1') {
+                teamName = $l10n.get('personal-projects');
+            }
+            else {
+                teamName = $scope.teams[project.team_id].name;
+            }
+            return teamName;
+        };
+
+        var _reloadProjects = function (projects, teams, pid, eid, callback) {
+            _setScopeProjectsAndTeams(projects, teams);
+            $worktile.teams(teams);
             $timeout(function () {
                 if (pid && $scope.projects[pid]) {
                     $scope.target.pid = pid;
@@ -101,9 +143,11 @@
                         $scope.target.pid = null;
                     }
                 }
+                if ($scope.target.pid) {
+                    $scope.project.selected = $scope.projects[$scope.target.pid];
+                }
                 $timeout(function () {
                     if ($scope.target.pid) {
-                        // var eid = $worktile.eid();
                         if (eid && $scope.projects[$scope.target.pid].entries[eid]) {
                             $scope.target.eid = eid;
                         }
@@ -130,29 +174,38 @@
         if ($worktile.isLoggedIn()) {
             var loadProjects = function (callback) {
                 var projects = $worktile.projects();
-                if (projects) {
-                    return callback(null, projects);
+                var teams = $worktile.teams();
+                if (projects && teams) {
+                    return callback(null, {
+                        projects: projects,
+                        teams: teams
+                    });
                 }
                 else {
-                    $worktile.getProjectsPromise()
-                        .then(function (result) {
-                            return callback(null, result);
-                        })
-                        .catch(function (error) {
-                            return callback(error, null);
-                        });
+                    $q.all({
+                        projects: $worktile.getProjectsPromise(),
+                        teams: $worktile.getTeamsPromise()
+                    })
+                    .then(function (result) {
+                        return callback(null, result);
+                    })
+                    .catch(function (error) {
+                        return callback(error, null);
+                    });
                 }
             };
 
             $scope.__loading = true;
             $scope.me = $worktile.getCurrentUser();
             $scope.mode = $worktile.mode() || $scope.modes.express;
-            loadProjects(function (error, projects) {
+            loadProjects(function (error, projectsAndTeams) {
                 if (error) {
                     $scope.showMessage(true, 'err-load-prj', error, false, null);
                 }
                 else {
-                    _reloadProjects(projects, $worktile.pid(), $worktile.eid(), function () {
+                    var projects = projectsAndTeams.projects;
+                    var teams = projectsAndTeams.teams;
+                    _reloadProjects(projects, teams, $worktile.pid(), $worktile.eid(), function () {
                         $scope.__loading = false;
                     });
                 }
@@ -164,6 +217,8 @@
                 var project  = $scope.projects[pid];
                 if (project) {
                     $scope.__loading = true;
+                    $scope.target.pid = pid;
+
                     var membersPromise = $q(function (resolve, reject) {
                         return resolve();
                     });
@@ -179,17 +234,18 @@
 
                     $q.all([membersPromise, entriesPromise])
                         .then(function () {
-                            // $timeout(function () {
-                                var eids = Object.keys(project.entries);
-                                if (eids.length > 0) {
-                                    $scope.target.eid = eids[0];
-                                }
-                                else {
-                                    $scope.target.eid = null;
-                                }
-                                if ($scope.me && project.members.hasOwnProperty($scope.me.uid)) {
-                                    $scope.target.followers = [$scope.me.uid];
-                                }
+                            _refreshScopeProjectsMembersAndEntries(project);
+
+                            var eids = Object.keys(project.entries);
+                            if (eids.length > 0) {
+                                $scope.target.eid = eids[0];
+                            }
+                            else {
+                                $scope.target.eid = null;
+                            }
+                            if ($scope.me && project.members.hasOwnProperty($scope.me.uid)) {
+                                $scope.target.followers = [$scope.me.uid];
+                            }
                             $worktile.projects($scope.projects);
                         })
                         .catch(function (error) {
@@ -202,8 +258,10 @@
             }
         };
 
-        $scope.$watch('target.pid', function (pid, oldValue) {
-            _onProjectChanged(pid, oldValue);
+        $scope.$watch('project.selected', function (selected, oldValue) {
+            if (selected && selected.pid) {
+                _onProjectChanged(selected.pid, oldValue);
+            }
         });
 
         $scope.switchMode = function (e) {
@@ -337,10 +395,15 @@
             $worktile.getCurrentUserPromise()
                 .then(function (user) {
                     $scope.me = user;
-                    return $worktile.getProjectsPromise();
+                    return $q.all({
+                        projects: $worktile.getProjectsPromise(),
+                        teams: $worktile.getTeamsPromise()
+                    });
                 })
-                .then(function (projects) {
-                    _reloadProjects(projects, $scope.target.pid, $scope.target.eid, function () {
+                .then(function (projectsAndTeams) {
+                    var projects = projectsAndTeams.projects;
+                    var teams = projectsAndTeams.teams;
+                    _reloadProjects(projects, teams, $scope.target.pid, $scope.target.eid, function () {
                         _onProjectChanged($scope.target.pid, null);
                         $scope.__loading = false;
                     });
@@ -355,4 +418,30 @@
         };
     });
 
+    app.filter('propsFilter', function () {
+        return function(items, props) {
+            var out = [];
+            if (angular.isArray(items)) {
+                items.forEach(function (item) {
+                    var itemMatches = false;
+                    var keys = Object.keys(props);
+                    for (var i = 0; i < keys.length; i++) {
+                        var prop = keys[i];
+                        var text = props[prop].toLowerCase();
+                        if (item[prop].toString().toLowerCase().indexOf(text) !== -1) {
+                            itemMatches = true;
+                            break;
+                        }
+                    } 
+                    if (itemMatches) {
+                        out.push(item);
+                    }
+                });
+            }
+            else {
+                out = items;
+            }
+            return out;
+        };
+    });
 })();

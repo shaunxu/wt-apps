@@ -1,7 +1,9 @@
 (function () {
+    'use strict';
+    
     var worktile = angular.module('ngWorktile', []);
 
-    worktile.value('$clientId', '54599295762c424b8aced6e7ee891a47');
+    worktile.value('$clientId', '792a1327b9954217969007153b1c2cef');
 
     worktile.factory('$worktile', function ($http, $interval, $q, $clientId) {
         var _storage = {
@@ -103,6 +105,15 @@
                     projects = _storage.get('projects');
                 }
                 return projects;
+            },
+            teams: function (teams) {
+                if (teams) {
+                    _storage.set('teams', teams);
+                }
+                else {
+                    teams = _storage.get('teams');
+                }
+                return teams;
             },
             pid: function (pid) {
                 if (pid) {
@@ -211,14 +222,45 @@
                     }).then(function (response) {
                         var result = {};
                         angular.forEach(response.data, function (project) {
-                            if (project.archived === 0) {
+                            if (project.archived === 0 && project.permission !== 0) {
                                 result[project.pid] = {
                                     pid: project.pid,
                                     name: project.name,
+                                    team_id: project.team_id,
+                                    pic: project.pic,
+                                    bg: project.bg,
+                                    visibility: project.visibility,
+                                    is_star: (project.is_star === 1),
                                     members: {},
                                     entries: {}
                                 };
                             }
+                        });
+                        return resolve(result);
+                    }, function (response) {
+                        return reject(response);
+                    });
+                });
+            },
+            getTeamsPromise: function () {
+                var self = this;
+                return $q(function (resolve, reject) {
+                    $http({
+                        method: 'GET',
+                        url: 'https://api.worktile.com/v1/teams',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'access_token': self.getToken().access_token
+                        }
+                    }).then(function (response) {
+                        var result = {};
+                        angular.forEach(response.data, function (team) {
+                            result[team.team_id] = {
+                                team_id: team.team_id,
+                                name: team.name,
+                                pic: team.pic,
+                                visibility: team.visibility
+                            };
                         });
                         return resolve(result);
                     }, function (response) {

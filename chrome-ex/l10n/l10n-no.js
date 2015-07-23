@@ -35,7 +35,9 @@
                 'language-label': 'Språk',
                 'save': 'Lagre',
                 'interval-label': 'Polling Interval',
-                'interval-unit': 'Minutt(er)'
+                'interval-unit': 'Minutt(er)',
+                'star-projects': 'Favoritter',
+                'personal-projects': 'Personlige'
             }
         });
     });

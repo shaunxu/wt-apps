@@ -17,7 +17,7 @@
                         return local[key];
                     }
                 }
-                return null;
+                return key;
             },
             getLocale: function (name) {
                 return locales[name];

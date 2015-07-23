@@ -6,12 +6,17 @@
     <title>Worktile</title>
 
     <link href="lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="lib/fontawesome/css/font-awesome.min.css" rel="stylesheet" media="screen">
+    <link href="lib/ui-select/select.css" rel="stylesheet" media="screen">
+    <link href="lib/ui-select/select2.css" rel="stylesheet" media="screen">
     <link href="app.css" rel="stylesheet" media="screen">
 
     <script type="text/javascript" src="lib/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="lib/bootstrap/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular.min.js"></script>
     <script type="text/javascript" src="lib/angular/angular-messages.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-sanitize.js"></script>
+    <script type="text/javascript" src="lib/ui-select/select.js"></script>
 
     <script type="text/javascript" src="l10n/l10n-en-us.js"></script>
     <script type="text/javascript" src="l10n/l10n-zh-cn.js"></script>
@@ -22,7 +27,6 @@
     <script type="text/javascript" src="app.js"></script>
   </head>
   <body ng-app="Worktile" ng-controller="MasterController">
-
     <div class="alert wt-alert" ng-class="message.error ? 'alert-danger' : 'alert-success'" ng-show="message">
       <button type="button" class="close" ng-click="message = null"><span class="glyphicon glyphicon-remove"></span></button>
       <button type="button" class="close" ng-show="message.details" ng-click="__showDetails = !__showDetails">
@@ -86,9 +90,17 @@
           <fieldset class="project-selector" ng-disabled="!me.uid">
             <div class="input-group" title="{{'target-pid' | l10n}}">
               <span class="input-group-addon"><span class="glyphicon glyphicon-inbox"></span></span>
-              <select required class="form-control" ng-model="target.pid" name="pid">
-                <option ng-repeat="project in projects" value="{{project.pid}}">{{project.name}}</option>
-              </select>
+              <ui-select ng-model="project.selected" 
+                         theme="bootstrap" 
+                         style="min-width: 300px;"
+                         class="ui-select-with-addon">
+                <ui-select-match placeholder="Select a project">{{$select.selected.name}}</ui-select-match>
+                <ui-select-choices group-by="getTeamName" repeat="project in projectsInArray | propsFilter: { name: $select.search }">
+                  <div>
+                    <i ng-class="project.pic" ng-style="{ 'color': project.bg, 'margin-right': '10px' }"></i><span>{{project.name}}</span>
+                  </div>
+                </ui-select-choices>
+              </ui-select>
             </div>
             <div class="input-group" title="{{'target-eid' | l10n}}" ng-show="type === types.task">
               <span class="input-group-addon"><span class="glyphicon glyphicon-th-list"></span></span>

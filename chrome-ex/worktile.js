@@ -97,6 +97,15 @@
                 }
                 return mode;
             },
+            type: function (type) {
+                if (type) {
+                    _storage.set('type', type);
+                }
+                else {
+                    type = _storage.get('type');
+                }
+                return type;
+            },
             projects: function (projects) {
                 if (projects) {
                     _storage.set('projects', projects);
@@ -330,13 +339,13 @@
                             if (post.followers.length > 0) {
                                 $http({
                                     method: 'POST',
-                                    url: 'https://api.worktile.com/v1/posts/' + postId + '/watcher?pid=' + pid,
+                                    url: 'https://api.worktile.com/v1/posts/' + response.data.post_id + '/watcher?pid=' + response.data.pid,
                                     headers: {
                                         // 'Content-Type': 'application/json',
                                         'access_token': self.getToken().access_token
                                     },
                                     data: {
-                                        uids: uids
+                                        uids: post.followers
                                     }
                                 }).then(function (response, status) {
                                     return resolve(response.data);

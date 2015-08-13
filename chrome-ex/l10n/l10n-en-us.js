@@ -37,7 +37,9 @@
                 'interval-label': 'Polling Interval',
                 'interval-unit': 'Minute(s)',
                 'star-projects': 'Favorites',
-                'personal-projects': 'Personal'
+                'personal-projects': 'Personal',
+                'type-task': 'Task',
+                'type-post': 'Topic'
             }
         });
     });

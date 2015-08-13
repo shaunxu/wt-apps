@@ -56,6 +56,7 @@
         </div>
       </div>
       <div class="panel-body">
+<!--
         <div class="type-selection" ng-if="false">
           <div class="btn-group " role="group">
             <button type="button" class="btn btn-default" ng-click="type = types.task">
@@ -72,7 +73,7 @@
             </button>
           </div>
         </div>
-
+-->
         <form novalidate name="targetForm">
           <div class="input-group" title="{{'target-name' | l10n}}">
             <span class="input-group-addon"><span class="glyphicon glyphicon-fire"></span></span>
@@ -110,17 +111,6 @@
             </div>
             <div class="row" ng-show="mode === modes.advanced">
               <div class="col-xs-6" style="padding-right: 5px;">
-                <div class="input-group" title="{{'target-assignees' | l10n}}">
-                  <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-user"></span></span>
-                    <div class="list-group wt-list">
-                      <a href="#" class="list-group-item wt-list-item" ng-repeat="member in projects[target.pid].members" 
-                         ng-class="target.assignees.indexOf(member.uid) >= 0 ? 'active' : ''" ng-click="clickMember($event, member.uid, target.assignees)">
-                        <img class="wt-avatar-sm" ng-src="{{member.avatar}}"> {{member.display_name}}
-                      </a>
-                    </div>
-                </div>
-              </div>
-              <div class="col-xs-6" style="padding-left: 5px;">
                 <div class="input-group" title="{{'target-followers' | l10n}}">
                   <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-thumbs-up"></span></span>
 
@@ -132,14 +122,31 @@
                     </div>
                 </div>
               </div>
+              <div class="col-xs-6" style="padding-left: 5px;" ng-show="type === types.task">
+                <div class="input-group" title="{{'target-assignees' | l10n}}">
+                  <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-user"></span></span>
+                    <div class="list-group wt-list">
+                      <a href="#" class="list-group-item wt-list-item" ng-repeat="member in projects[target.pid].members" 
+                         ng-class="target.assignees.indexOf(member.uid) >= 0 ? 'active' : ''" ng-click="clickMember($event, member.uid, target.assignees)">
+                        <img class="wt-avatar-sm" ng-src="{{member.avatar}}"> {{member.display_name}}
+                      </a>
+                    </div>
+                </div>
+              </div>
             </div>
           </fieldset>
         </form>
 
-        <div class="btn-group btn-group-sm toolbar" role="group">
+        <div class="btn-group btn-group-sm dropup toolbar" role="group">
           <button type="button" class="btn btn-default" ng-click="switchMode($event)">
             <span ng-class="mode === modes.advanced ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'" aria-hidden="true"></span> {{'adv-mode' | l10n}}
           </button>
+            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{type | l10n}} <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li ng-repeat='t in types' ng-click='changeType(t)'><a href="#">{{t | l10n}}</a></li>
+            </ul>
         </div>
         <div class="btn-group btn-group-sm pull-right toolbar" role="group">
           <button type="button" class="btn btn-primary" ng-click="me.uid ? logout() : login()" title="{{(me.uid ? 'logout' : 'login') | l10n}}">

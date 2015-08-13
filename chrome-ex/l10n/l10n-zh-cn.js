@@ -37,7 +37,9 @@
                 'interval-label': '刷新周期',
                 'interval-unit': '分钟',
                 'star-projects': '常用项目',
-                'personal-projects': '个人项目'
+                'personal-projects': '个人项目',
+                'type-task': '任务',
+                'type-post': '话题'
             }
         });
     });

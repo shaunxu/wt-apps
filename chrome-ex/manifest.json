@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "Worktile Extension for Chrome",
-  "description": "Chrome extension for worktile to add task, topic and document easily.",
-  "version": "1.0",
+  "description": "Worktile crhome extension which makes it easy to create task and topic from the web page you are reading.",
+  "version": "0.9.150813",
   "background": {
     "scripts": ["lib/jquery/jquery.min.js", "background.js"]
   },

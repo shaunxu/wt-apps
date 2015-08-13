@@ -25,12 +25,13 @@
         $scope.mode = $scope.modes.express;
 
         $scope.types = {
-            task: 1,
-            appointment: 2,
-            post: 3,
-            document: 4
+            task: 'type-task',
+            post: 'type-post'
         };
-        $scope.type = $scope.types.task;
+        $scope.changeType = function (type) {
+            $scope.type = type;
+            $worktile.type(type);
+        };
 
         $scope.message = null;
         $scope.showMessage = function (isError, title, details, autoHide, callback) {
@@ -64,7 +65,7 @@
                 selected: null
             };
             if (all) {
-                $scope.type = $scope.types.task;
+                $scope.type = $worktile.type() || $scope.types.task;
                 $scope.me = {};
                 $scope.projects = {};
             }

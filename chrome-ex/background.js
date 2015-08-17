@@ -20,6 +20,36 @@
         }
     });
 
+    var rawToken = localStorage['token'];
+    if (rawToken) {
+        var token = JSON.parse(rawToken);
+        var expired_on = token.expired_on || Date.now();
+        var now = Date.now();
+        if (expired_on - now <= 3 * 24 * 60 * 60 * 1000) {
+            $.ajax({
+                method: 'GET',
+                url: 'https://api.worktile.com/oauth2/refresh_token?refresh_token=' + token.refresh_token + '&client_id=792a1327b9954217969007153b1c2cef',
+                headers: {
+                    'Accept': 'application/json',
+                    'refresh_token': token.refresh_token,
+                    'client_id': '792a1327b9954217969007153b1c2cef'
+                },
+                success: function (data, textStatus, jqXHR) {
+                    var json = Object.prototype.toString.call(data) === '[object String]' ? JSON.parse(data) : data;
+                    if (json.code === 200) {
+                        localStorage['token'] = JSON.stringify(json.data);
+                    }
+                    else {
+                        chrome.browserAction.setBadgeText({ text: '!' });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    chrome.browserAction.setBadgeText({ text: '!' });
+                }
+            });
+        }
+    }
+
     var refresh = function () {
         $.ajax({
             method: 'GET',

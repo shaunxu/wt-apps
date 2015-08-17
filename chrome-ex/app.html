@@ -56,27 +56,9 @@
         </div>
       </div>
       <div class="panel-body">
-<!--
-        <div class="type-selection" ng-if="false">
-          <div class="btn-group " role="group">
-            <button type="button" class="btn btn-default" ng-click="type = types.task">
-              <span ng-class="type === types.task ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Task
-            </button>
-            <button type="button" class="btn btn-default" ng-click="type = types.appointment" ng-if="false">
-              <span ng-class="type === types.appointment ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Appointment
-            </button>
-            <button type="button" class="btn btn-default" ng-click="type = types.post">
-              <span ng-class="type === types.post ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Post
-            </button>
-            <button type="button" class="btn btn-default" ng-click="type = types.document" ng-if="false">
-              <span ng-class="type === types.document ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'"></span> Document
-            </button>
-          </div>
-        </div>
--->
         <form novalidate name="targetForm">
           <div class="input-group" title="{{'target-name' | l10n}}">
-            <span class="input-group-addon"><span class="glyphicon glyphicon-fire"></span></span>
+            <span class="input-group-addon"><span ng-class="type.icon"></span></span>
             <input required type="text" class="form-control" id="title" name="title" placeholder="{{'target-name' | l10n}}" ng-model="target.title">
             <span class="input-group-btn">
               <button class="btn btn-primary" type="button" ng-click="copy()" title="{{'copy' | l10n}}">
@@ -103,7 +85,7 @@
                 </ui-select-choices>
               </ui-select>
             </div>
-            <div class="input-group" title="{{'target-eid' | l10n}}" ng-show="type === types.task">
+            <div class="input-group" title="{{'target-eid' | l10n}}" ng-show="type.id === types.task.id">
               <span class="input-group-addon"><span class="glyphicon glyphicon-th-list"></span></span>
               <select required class="form-control" ng-model="target.eid" name="eid">
                 <option ng-repeat="entry in projects[target.pid].entries" value="{{entry.entry_id}}">{{entry.name}}</option>
@@ -122,7 +104,7 @@
                     </div>
                 </div>
               </div>
-              <div class="col-xs-6" style="padding-left: 5px;" ng-show="type === types.task">
+              <div class="col-xs-6" style="padding-left: 5px;" ng-show="type.id === types.task.id">
                 <div class="input-group" title="{{'target-assignees' | l10n}}">
                   <span class="input-group-addon input-group-addon-vtop"><span class="glyphicon glyphicon-user"></span></span>
                     <div class="list-group wt-list">
@@ -142,10 +124,12 @@
             <span ng-class="mode === modes.advanced ? 'glyphicon glyphicon-check' : 'glyphicon glyphicon-unchecked'" aria-hidden="true"></span> {{'adv-mode' | l10n}}
           </button>
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              {{type | l10n}} <span class="caret"></span>
+              <span ng-class="type.icon"></span> {{type.id | l10n}} <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-              <li ng-repeat='t in types' ng-click='changeType(t)'><a href="#">{{t | l10n}}</a></li>
+              <li ng-repeat='t in types' ng-click='changeType(t)'>
+                <a href="#"><span ng-class="t.icon"></span> {{t.id | l10n}}</a>
+              </li>
             </ul>
         </div>
         <div class="btn-group btn-group-sm pull-right toolbar" role="group">

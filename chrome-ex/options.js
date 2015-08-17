@@ -56,6 +56,7 @@
 
         $scope.name = $worktile.name;
         $scope.me = $worktile.getCurrentUser();
+        // $scope.logInUrl = $worktile.getAuthorizeUrl('http://open.worktile.com');
         $scope.logInUrl = $worktile.getAuthorizeUrl(chrome.extension.getURL('options.html'));
 
         var _queryString = function (url, name) {

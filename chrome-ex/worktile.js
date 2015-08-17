@@ -3,7 +3,7 @@
     
     var worktile = angular.module('ngWorktile', []);
 
-    worktile.value('$clientId', '792a1327b9954217969007153b1c2cef');
+    worktile.value('$clientId', '54599295762c424b8aced6e7ee891a47');
 
     worktile.factory('$worktile', function ($http, $interval, $q, $clientId) {
         var _storage = {
@@ -33,12 +33,6 @@
 
         return {
             name: 'Worktile',
-            getToken: function () {
-                return _storage.get('token');
-            },
-            setToken: function (token) {
-                _storage.set('token', token);
-            },
             getCurrentUser: function () {
                 return _storage.get('me');
             },
@@ -63,6 +57,7 @@
             },
             token: function (token) {
                 if (token) {
+                    token.expired_on = Date.now() + token.expires_in * 1000;
                     _storage.set('token', token);
                 }
                 else {
@@ -161,7 +156,7 @@
             },
             isLoggedIn: function () {
                 var self = this;
-                var token = self.getToken();
+                var token = self.token();
                 return ( 
                     token && token.access_token && token.expires_in && token.refresh_token
                 );
@@ -174,7 +169,7 @@
                         url: 'https://api.worktile.com/v1/projects/' + project.pid + '/members',
                         headers: {
                             'Content-Type': 'application/json',
-                            'access_token': self.getToken().access_token
+                            'access_token': self.token().access_token
                         }
                     }).then(function (response) {
                         project.members = {};
@@ -202,7 +197,7 @@
                         url: 'https://api.worktile.com/v1/entries?pid=' + project.pid,
                         headers: {
                             'Content-Type': 'application/json',
-                            'access_token': self.getToken().access_token
+                            'access_token': self.token().access_token
                         }
                     }).then(function (response, status) {
                         project.entries = {};
@@ -226,7 +221,7 @@
                         url: 'https://api.worktile.com/v1/projects',
                         headers: {
                             'Content-Type': 'application/json',
-                            'access_token': self.getToken().access_token
+                            'access_token': self.token().access_token
                         }
                     }).then(function (response) {
                         var result = {};
@@ -259,7 +254,7 @@
                         url: 'https://api.worktile.com/v1/teams',
                         headers: {
                             'Content-Type': 'application/json',
-                            'access_token': self.getToken().access_token
+                            'access_token': self.token().access_token
                         }
                     }).then(function (response) {
                         var result = {};
@@ -285,7 +280,7 @@
                         url: 'https://api.worktile.com/v1/user/profile',
                         headers: {
                             'Content-Type': 'application/json',
-                            'access_token': self.getToken().access_token
+                            'access_token': self.token().access_token
                         }
                     }).then(function (response, status) {
                         var user = response.data;
@@ -313,7 +308,7 @@
                             code: code
                         }
                     }).then(function (response, status) {
-                        self.setToken(response.data);
+                        self.token(response.data);
                         return resolve(response.data);
                     }, function (response) {
                         return reject(response);
@@ -328,8 +323,7 @@
                             method: 'POST',
                             url: 'https://api.worktile.com/v1/post?pid=' + post.pid,
                             headers: {
-                                // 'Content-Type': 'application/json',
-                                'access_token': self.getToken().access_token
+                                'access_token': self.token().access_token
                             },
                             data: {
                                 name: post.title,
@@ -341,8 +335,7 @@
                                     method: 'POST',
                                     url: 'https://api.worktile.com/v1/posts/' + response.data.post_id + '/watcher?pid=' + response.data.pid,
                                     headers: {
-                                        // 'Content-Type': 'application/json',
-                                        'access_token': self.getToken().access_token
+                                        'access_token': self.token().access_token
                                     },
                                     data: {
                                         uids: post.followers
@@ -374,8 +367,7 @@
                             method: 'POST',
                             url: 'https://api.worktile.com/v1/task?pid=' + task.pid,
                             headers: {
-                                // 'Content-Type': 'application/json',
-                                'access_token': self.getToken().access_token
+                                'access_token': self.token().access_token
                             },
                             data: {
                                 name: task.name,
@@ -389,8 +381,7 @@
                                         method: 'PUT',
                                         url: 'https://api.worktile.com/v1/tasks/' + tid + '?pid=' + pid,
                                         headers: {
-                                            // 'Content-Type': 'application/json',
-                                            'access_token': self.getToken().access_token
+                                            'access_token': self.token().access_token
                                         },
                                         data: {
                                             name: name,
@@ -413,8 +404,7 @@
                                             method: 'POST',
                                             url: 'https://api.worktile.com/v1/tasks/' + tid + '/member?pid=' + pid,
                                             headers: {
-                                                // 'Content-Type': 'application/json',
-                                                'access_token': self.getToken().access_token
+                                                'access_token': self.token().access_token
                                             },
                                             data: {
                                                 uid: assignee
@@ -436,8 +426,7 @@
                                         method: 'POST',
                                         url: 'https://api.worktile.com/v1/tasks/' + tid + '/watcher?pid=' + pid,
                                         headers: {
-                                            // 'Content-Type': 'application/json',
-                                            'access_token': self.getToken().access_token
+                                            'access_token': self.token().access_token
                                         },
                                         data: {
                                             uids: followers

@@ -25,8 +25,14 @@
         $scope.mode = $scope.modes.express;
 
         $scope.types = {
-            task: 'type-task',
-            post: 'type-post'
+            task: {
+                id: 'type-task',
+                icon: 'glyphicon glyphicon-fire'
+            },
+            post: {
+                id: 'type-post',
+                icon: 'glyphicon glyphicon-bullhorn'
+            }
         };
         $scope.changeType = function (type) {
             $scope.type = type;
@@ -345,8 +351,8 @@
 
             $scope.__loading = true;
             var promise = {};
-            switch ($scope.type) {
-                case $scope.types.task:
+            switch ($scope.type.id) {
+                case $scope.types.task.id:
                     promise = $worktile.createTaskPromise({
                         name: $scope.target.title,
                         description: $scope.target.content,
@@ -356,7 +362,7 @@
                         followers: $scope.target.followers
                     });
                     break;
-                case $scope.types.post:
+                case $scope.types.post.id:
                     promise = $worktile
                         .createPostPromise({
                             title: $scope.target.title,
@@ -373,7 +379,7 @@
                 .then(function (result) {
                     $worktile.lastProject($scope.projects[$scope.target.pid]);
                     $worktile.pid($scope.target.pid);
-                    if ($scope.type === $scope.types.task) {
+                    if ($scope.type.id === $scope.types.task.id) {
                         $worktile.eid($scope.target.eid);
                     }
 

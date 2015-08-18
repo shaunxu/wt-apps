@@ -7,6 +7,15 @@
         return localStorage['options'] || {};
     };
 
+    chrome.contextMenus.removeAll();
+    chrome.contextMenus.create({
+        title: "Refresh notifications",
+        contexts: ["browser_action"],
+        onclick: function() {
+            refresh();
+        }
+    });
+
     chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
         if (message.action === 'options_saved') {
             if (id) {
@@ -51,6 +60,7 @@
     }
 
     var refresh = function () {
+        chrome.browserAction.setBadgeText({ text: '...' });
         $.ajax({
             method: 'GET',
             url: 'https://new.worktile.com/api/notices?type=all&since_id=0&count=all&is_read=0&dt=' + new Date().getTime(),

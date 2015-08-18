@@ -15,7 +15,8 @@
     "tabs",
     "identity",
     "cookies",
-    "*://*.worktile.com/*"
+    "*://*.worktile.com/*",
+    "contextMenus"
   ],
   "web_accessible_resources": [
     "options.html"

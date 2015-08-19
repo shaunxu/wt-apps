@@ -9,7 +9,7 @@
 
     chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
-        title: "Refresh notifications",
+        title: "Sync Messages",
         contexts: ["browser_action"],
         onclick: function() {
             refresh();
@@ -34,26 +34,31 @@
         var token = JSON.parse(rawToken);
         var expired_on = token.expired_on || Date.now();
         var now = Date.now();
-        if (expired_on - now <= 3 * 24 * 60 * 60 * 1000) {
+        if (expired_on - now > 3 * 24 * 60 * 60 * 1000) {
             $.ajax({
                 method: 'GET',
-                url: 'https://api.worktile.com/oauth2/refresh_token?refresh_token=' + token.refresh_token + '&client_id=792a1327b9954217969007153b1c2cef',
+                url: 'https://api.worktile.com/oauth2/refresh_token?refresh_token=' + token.refresh_token + '&client_id=54599295762c424b8aced6e7ee891a47',
                 headers: {
                     'Accept': 'application/json',
                     'refresh_token': token.refresh_token,
-                    'client_id': '792a1327b9954217969007153b1c2cef'
+                    'client_id': '54599295762c424b8aced6e7ee891a47'
                 },
                 success: function (data, textStatus, jqXHR) {
                     var json = Object.prototype.toString.call(data) === '[object String]' ? JSON.parse(data) : data;
-                    if (json.code === 200) {
-                        localStorage['token'] = JSON.stringify(json.data);
+                    if (json) {
+                        json.expired_on = Date.now() + json.expires_in * 1000;
+                        localStorage['token'] = JSON.stringify(json);
+                        console.log('bbb-1');
                     }
                     else {
                         chrome.browserAction.setBadgeText({ text: '!' });
+                        console.log('bbb-2');
                     }
+                    console.log('bbb');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     chrome.browserAction.setBadgeText({ text: '!' });
+                    console.log('ccc');
                 }
             });
         }
